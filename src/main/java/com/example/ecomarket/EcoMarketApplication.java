@@ -9,5 +9,4 @@ public class EcoMarketApplication {
     public static void main(String[] args) {
         SpringApplication.run(EcoMarketApplication.class, args);
     }
-
 }
