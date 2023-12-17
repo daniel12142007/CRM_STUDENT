@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Entity
@@ -23,7 +24,6 @@ public class Order {
     private final LocalDateTime date = LocalDateTime.now();
     private int price;
     private int deliveryPrice;
-    @OneToOne
-    @JoinColumn(name = "orderItem_id")
-    private OrderItem orderItem;
+    @OneToMany(mappedBy = "orders")
+    private List<OrderItem> orderItems;
 }
