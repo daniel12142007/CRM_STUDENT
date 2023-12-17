@@ -14,7 +14,15 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
-    public List<ProductResponse> findAllProductByCategoryId(Long id) {
-        return categoryRepository.findAllProductByCategoryId(id);
+    public List<ProductResponse> searchProductByTitleAndCategoryId(Long id) {
+        return productRepository.findAllProductByCategoryId(id);
+    }
+
+    public List<ProductResponse> searchProductByTitle(String title) {
+        return productRepository.searchProductByTitle(title);
+    }
+
+    public List<ProductResponse> searchProductByTitleAndCategoryId(String title, Long categoryId) {
+        return productRepository.searchProductByTitleAndByCategoryId(title, categoryId);
     }
 }
