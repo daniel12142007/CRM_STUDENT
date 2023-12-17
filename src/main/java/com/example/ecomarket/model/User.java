@@ -12,8 +12,9 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
+    private final LocalDateTime dataRegister = LocalDateTime.now();
     private String email;
     private String password;
-    private LocalDateTime dataRegister;
+    @OneToOne(mappedBy = "user")
+    private Basket basket;
 }

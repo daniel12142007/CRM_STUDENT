@@ -26,4 +26,7 @@ public class Order {
     private int deliveryPrice;
     @OneToMany(mappedBy = "orders")
     private List<OrderItem> orderItems;
+    @ManyToOne
+    @JoinColumn(name = "basket_id")
+    private Basket basket;
 }

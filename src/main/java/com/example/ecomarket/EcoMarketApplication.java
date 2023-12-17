@@ -1,9 +1,11 @@
 package com.example.ecomarket;
 
+import com.example.ecomarket.config.JwtUtils;
 import com.example.ecomarket.model.Category;
 import com.example.ecomarket.model.Product;
 import com.example.ecomarket.repository.CategoryRepository;
 import com.example.ecomarket.repository.ProductRepository;
+import com.example.ecomarket.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,6 +17,7 @@ import javax.annotation.PostConstruct;
 public class EcoMarketApplication {
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
+    private final AuthService authService;
 
     public static void main(String[] args) {
         SpringApplication.run(EcoMarketApplication.class, args);
@@ -22,6 +25,8 @@ public class EcoMarketApplication {
 
     @PostConstruct
     public void init() {
+        System.out.println(authService.user());
+
         Category fruits = method("Фрукты");
         Category driedFruits = method("Сухофрукты");
         Category vegetables = method("Овощи");
