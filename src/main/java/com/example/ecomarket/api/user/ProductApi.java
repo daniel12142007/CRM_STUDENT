@@ -1,4 +1,4 @@
-package com.example.ecomarket.api;
+package com.example.ecomarket.api.user;
 
 import com.example.ecomarket.dto.response.ProductResponse;
 import com.example.ecomarket.service.OrderService;
@@ -19,8 +19,13 @@ public class ProductApi {
 
     @GetMapping("find/product/by/{categoryId}")
     public List<ProductResponse> findAllProductByCategoryId(
-            @PathVariable Long categoryId) {
-        return productService.searchProductByTitleAndCategoryId(categoryId);
+            @PathVariable List<Long> categoryId) {
+        return productService.searchProductByTitleAndCategoryId(categoryId, SecurityContextHolder.getContext().getAuthentication().getName());
+    }
+
+    @GetMapping("find/by/{productId}")
+    public ProductResponse findById(@PathVariable Long productId) {
+        return productService.findById(productId);
     }
 
     @GetMapping("search/product/by/title")
@@ -36,9 +41,9 @@ public class ProductApi {
         return productService.searchProductByTitleAndCategoryId(title, categoryId);
     }
 
-//    @PostMapping
-//    @PreAuthorize("isAuthenticated()")
-//    public String hello(@RequestParam Long id) {
-//        return orderService.save(id, SecurityContextHolder.getContext().getAuthentication().getName());
-//    }
+    @PostMapping("add/product")
+    @PreAuthorize("isAuthenticated()")
+    public ProductResponse hello(@RequestParam Long id) {
+        return orderService.saveProductOnOrder(id, SecurityContextHolder.getContext().getAuthentication().getName());
+    }
 }

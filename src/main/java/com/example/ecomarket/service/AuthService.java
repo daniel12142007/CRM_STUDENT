@@ -1,8 +1,12 @@
 package com.example.ecomarket.service;
 
 import com.example.ecomarket.config.JwtUtils;
-import com.example.ecomarket.dto.response.RegisterResponse;
+import com.example.ecomarket.dto.request.RegisterUserRequest;
+import com.example.ecomarket.dto.response.JWTResponse;
+import com.example.ecomarket.model.Basket;
 import com.example.ecomarket.model.User;
+import com.example.ecomarket.model.enums.Role;
+import com.example.ecomarket.repository.BasketRepository;
 import com.example.ecomarket.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,18 +18,43 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtUtils jwtUtils;
     private final PasswordEncoder passwordEncoder;
+    private final BasketRepository basketRepository;
 
-    public RegisterResponse user() {
+    public JWTResponse register(RegisterUserRequest request) {
         User user = new User();
+        user.setEmail(request.getEmail());
+        user.setRole(Role.USER);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        if (userRepository.existsByEmail(request.getEmail()))
+            throw new RuntimeException("found email:" + request.getEmail() + " email");
         userRepository.save(user);
-        User user1 = userRepository.findById(user.getId()).get();
-        user1.setPassword(passwordEncoder.encode(String.valueOf(user.getId())));
-        user1.setEmail(String.valueOf(user.getId()));
-        userRepository.save(user1);
-        String token = jwtUtils.generateToken(user1.getEmail());
-        return RegisterResponse.builder()
-                .id(user1.getId())
-                .token(token)
-                .build();
+        Basket basket = new Basket();
+        basket.setUser(user);
+        basketRepository.save(basket);
+        String token = jwtUtils.generateToken(user.getEmail());
+        return new JWTResponse(
+                user.getEmail(),
+                token,
+                "login",
+                user.getRole()
+        );
+    }
+
+    public JWTResponse login(String email, String password) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> {
+            throw new RuntimeException("not found:" + email + " email");
+        });
+        System.out.println(user.getPassword());
+        System.out.println(passwordEncoder.encode(password));
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new RuntimeException("Invalid password");
+        }
+        String token = jwtUtils.generateToken(user.getEmail());
+        return new JWTResponse(
+                user.getEmail(),
+                token,
+                "login",
+                user.getRole()
+        );
     }
 }

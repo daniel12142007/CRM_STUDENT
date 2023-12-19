@@ -11,6 +11,6 @@ import javax.transaction.Transactional;
 @Repository
 @Transactional
 public interface BasketRepository extends JpaRepository<Basket, Long> {
-    @Query("select b from Basket b where b.user.id = :id")
-    Basket findByBasteByUserId(@Param(value = "id") Long id);
+    @Query("select b from Basket b where b.user.email = :email")
+    Basket findByBasteByUserEmail(@Param(value = "email") String email);
 }

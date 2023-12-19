@@ -1,12 +1,13 @@
 package com.example.ecomarket;
 
-import com.example.ecomarket.config.JwtUtils;
+import com.example.ecomarket.dto.request.RegisterUserRequest;
 import com.example.ecomarket.model.Category;
 import com.example.ecomarket.model.Product;
 import com.example.ecomarket.repository.CategoryRepository;
 import com.example.ecomarket.repository.ProductRepository;
 import com.example.ecomarket.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -14,6 +15,7 @@ import javax.annotation.PostConstruct;
 
 @SpringBootApplication
 @RequiredArgsConstructor
+@Slf4j
 public class EcoMarketApplication {
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
@@ -25,8 +27,11 @@ public class EcoMarketApplication {
 
     @PostConstruct
     public void init() {
-        System.out.println(authService.user());
-
+        RegisterUserRequest request = new RegisterUserRequest();
+        request.setEmail("string@gmail.com");
+        request.setPassword("daniel000daniel");
+        request.setFullName("Daniel Ahatzhanov");
+        log.error("token{}", authService.register(request));
         Category fruits = method("Фрукты");
         Category driedFruits = method("Сухофрукты");
         Category vegetables = method("Овощи");

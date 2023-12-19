@@ -1,12 +1,12 @@
 package com.example.ecomarket.service;
 
 import com.example.ecomarket.dto.response.CategoryResponse;
+import com.example.ecomarket.model.Category;
 import com.example.ecomarket.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -16,10 +16,15 @@ public class CategoryService {
     private final ModelMapper modelMapper;
 
     public List<CategoryResponse> findAll() {
-        List<CategoryResponse> list = new ArrayList<>();
-        categoryRepository.findAll().forEach(a -> {
-            list.add(modelMapper.map(a, CategoryResponse.class));
-        });
-        return list;
+        return categoryRepository.findAllCategoryResponse();
+    }
+
+    public List<CategoryResponse> saveCategory(String image, String title) {
+        Category category = Category.builder()
+                .title(title)
+                .image(image)
+                .build();
+        categoryRepository.save(category);
+        return findAll();
     }
 }

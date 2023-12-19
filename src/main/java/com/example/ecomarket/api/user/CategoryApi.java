@@ -1,4 +1,4 @@
-package com.example.ecomarket.api;
+package com.example.ecomarket.api.user;
 
 import com.example.ecomarket.dto.response.CategoryResponse;
 import com.example.ecomarket.service.CategoryService;
