@@ -18,21 +18,21 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             select
             new com.example.ecomarket.dto.response.ProductResponse(p.id,p.image,p.title,p.description,p.price,p.count)
             from Product p where p.category.id = :id
-            """)
+             """)
     List<ProductResponse> findAllProductByCategoryId(@Param(value = "id") Long id);
 
     @Query("""
-                        select
-                        new com.example.ecomarket.dto.response.ProductResponse(p.id,p.image,p.title,p.description,p.price,p.count)
-                        from Product p where p.title like :title%
-            """)
+            select
+            new com.example.ecomarket.dto.response.ProductResponse(p.id,p.image,p.title,p.description,p.price,p.count)
+            from Product p where p.title like :title%
+             """)
     List<ProductResponse> searchProductByTitle(@Param(value = "title") String title);
 
     @Query("""
-                        select
-                        new com.example.ecomarket.dto.response.ProductResponse(p.id,p.image,p.title,p.description,p.price,p.count)
-                        from Product p where p.title like :title%
-                        and p.category.id = :id
+            select
+            new com.example.ecomarket.dto.response.ProductResponse(p.id,p.image,p.title,p.description,p.price,p.count)
+            from Product p where p.title like :title%
+            and p.category.id = :id
             """)
     List<ProductResponse> searchProductByTitleAndByCategoryId(
             @Param(value = "title") String title,
@@ -45,8 +45,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             join item.product p
             where b.user.email = :email
             and p.id in :productId
+            and p.category.id = :categoryId
             """)
     List<OrderItem> findOrderItemByIdAndEmail(
             @Param(value = "productId") List<Long> productId,
-            @Param(value = "email") String email);
+            @Param(value = "email") String email,
+            @Param(value = "categoryId") Long categoryId);
+
 }

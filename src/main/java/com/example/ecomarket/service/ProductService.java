@@ -5,7 +5,6 @@ import com.example.ecomarket.dto.response.ProductResponse;
 import com.example.ecomarket.model.Category;
 import com.example.ecomarket.model.OrderItem;
 import com.example.ecomarket.model.Product;
-import com.example.ecomarket.model.User;
 import com.example.ecomarket.repository.CategoryRepository;
 import com.example.ecomarket.repository.ProductRepository;
 import com.example.ecomarket.repository.UserRepository;
@@ -24,9 +23,9 @@ public class ProductService {
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
 
-    public List<ProductResponse> searchProductByTitleAndCategoryId(List<Long> id, String email) {
+    public List<ProductResponse> searchProductByTitleAndCategoryId(List<Long> id, String email, Long categoryId) {
         List<ProductResponse> list = new ArrayList<>();
-        for (OrderItem orderItem : productRepository.findOrderItemByIdAndEmail(id, email)) {
+        for (OrderItem orderItem : productRepository.findOrderItemByIdAndEmail(id, email, categoryId)) {
             ProductResponse productResponse = new ProductResponse();
             productResponse.setId(orderItem.getProduct().getId());
             productResponse.setCount(orderItem.getQuantity());
@@ -35,28 +34,6 @@ public class ProductService {
         return list;
     }
 
-    //        User user = userRepository.findByEmail(email).orElseThrow();
-//        List<ProductResponse> list = new ArrayList<>();
-//        for (ProductResponse productResponse : productRepository.findAllProductByCategoryId(id)) {
-//            boolean check = true;
-//            for (OrderItem orderItem : user.getBasket().getOrderItems()) {
-//                Product product = orderItem.getProduct();
-//                if (product.getId().equals(productResponse.getId())) {
-//                    list.add(ProductResponse.builder()
-//                            .id(product.getId())
-//                            .count(orderItem.getQuantity())
-//                            .title(product.getTitle())
-//                            .price(product.getPrice() * orderItem.getQuantity())
-//                            .description(product.getDescription())
-//                            .image(product.getImage())
-//                            .build());
-//                    check = false;
-//                }
-//            }
-//            if (check)
-//                list.add(productResponse);
-//        }
-//        return list;
     public List<ProductResponse> searchProductByTitle(String title) {
         return productRepository.searchProductByTitle(title);
     }
