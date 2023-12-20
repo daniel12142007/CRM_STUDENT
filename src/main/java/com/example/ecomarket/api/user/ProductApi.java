@@ -19,31 +19,42 @@ public class ProductApi {
 
     @GetMapping("find/product/by/{categoryId}")
     public List<ProductResponse> findAllProductByCategoryId(
-            @PathVariable List<Long> categoryId) {
-        return productService.searchProductByTitleAndCategoryId(categoryId, SecurityContextHolder.getContext().getAuthentication().getName());
+            @PathVariable Long categoryId) {
+        return productService.searchProductByTitleAndCategoryId(
+                SecurityContextHolder.getContext().getAuthentication().getName(),
+                categoryId);
     }
 
     @GetMapping("find/by/{productId}")
     public ProductResponse findById(@PathVariable Long productId) {
-        return productService.findById(productId);
+        return productService.findById(
+                productId,
+                SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
     @GetMapping("search/product/by/title")
     public List<ProductResponse> findAllProductByCategoryId(
             @RequestParam String title) {
-        return productService.searchProductByTitle(title);
+        return productService.searchProductByTitle(
+                title,
+                SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
     @GetMapping("search/product/by/title/by/{categoryId}")
     public List<ProductResponse> findAllProductByCategoryId(
             @PathVariable Long categoryId,
             @RequestParam String title) {
-        return productService.searchProductByTitleAndCategoryId(title, categoryId);
+        return productService.searchProductByTitleAndByTitle(
+                title,
+                SecurityContextHolder.getContext().getAuthentication().getName(),
+                categoryId);
     }
 
     @PostMapping("add/product")
     @PreAuthorize("isAuthenticated()")
     public ProductResponse hello(@RequestParam Long id) {
-        return orderService.saveProductOnOrder(id, SecurityContextHolder.getContext().getAuthentication().getName());
+        return orderService.saveProductOnOrder(
+                id,
+                SecurityContextHolder.getContext().getAuthentication().getName());
     }
 }

@@ -23,27 +23,20 @@ public class ProductService {
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
 
-    public List<ProductResponse> searchProductByTitleAndCategoryId(List<Long> id, String email, Long categoryId) {
-        List<ProductResponse> list = new ArrayList<>();
-        for (OrderItem orderItem : productRepository.findOrderItemByIdAndEmail(id, email, categoryId)) {
-            ProductResponse productResponse = new ProductResponse();
-            productResponse.setId(orderItem.getProduct().getId());
-            productResponse.setCount(orderItem.getQuantity());
-            list.add(productResponse);
-        }
-        return list;
+    public List<ProductResponse> searchProductByTitleAndCategoryId(String email, Long categoryId) {
+        return productRepository.findOrderItemByIdAndEmail(email, categoryId);
     }
 
-    public List<ProductResponse> searchProductByTitle(String title) {
-        return productRepository.searchProductByTitle(title);
+    public List<ProductResponse> searchProductByTitle(String title, String email) {
+        return productRepository.searchProductByTitle(title, email);
     }
 
-    public List<ProductResponse> searchProductByTitleAndCategoryId(String title, Long categoryId) {
-        return productRepository.searchProductByTitleAndByCategoryId(title, categoryId);
+    public List<ProductResponse> searchProductByTitleAndByTitle(String title, String email, Long categoryId) {
+        return productRepository.searchProductByTitleAndByCategoryId(title, categoryId, email);
     }
 
-    public ProductResponse findById(Long productId) {
-        return modelMapper.map(productRepository.findById(productId).orElseThrow(), ProductResponse.class);
+    public ProductResponse findById(Long productId, String email) {
+        return productRepository.findByIdProduct(email, productId);
     }
 
     public ProductResponse saveProduct(ProductRequest request, Long categoryId) {
