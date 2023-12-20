@@ -4,7 +4,6 @@ import com.example.ecomarket.dto.response.ProductResponse;
 import com.example.ecomarket.service.OrderService;
 import com.example.ecomarket.service.ProductService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +15,20 @@ import java.util.List;
 public class ProductApi {
     private final ProductService productService;
     private final OrderService orderService;
+
+    @PostMapping("add/product")
+    public ProductResponse addProduct(@RequestParam Long id) {
+        return orderService.saveProductOnOrder(
+                id,
+                SecurityContextHolder.getContext().getAuthentication().getName());
+    }
+
+    @GetMapping("get/sum/basket")
+    public Integer sum() {
+        return productService.basketSum(
+                SecurityContextHolder.getContext().getAuthentication().getName()
+        );
+    }
 
     @GetMapping("find/product/by/{categoryId}")
     public List<ProductResponse> findAllProductByCategoryId(
@@ -50,10 +63,4 @@ public class ProductApi {
                 categoryId);
     }
 
-    @PostMapping("add/product")
-    public ProductResponse addProduct(@RequestParam Long id) {
-        return orderService.saveProductOnOrder(
-                id,
-                SecurityContextHolder.getContext().getAuthentication().getName());
-    }
 }

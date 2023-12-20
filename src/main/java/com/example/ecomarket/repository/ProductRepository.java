@@ -88,4 +88,17 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     ProductResponse findByIdProduct(
             @Param(value = "email") String email,
             @Param(value = "productId") Long productId);
+
+    @Query("""
+            select
+            sum(p.price*coalesce(case when p.id = orderItem.product.id then orderItem.quantity else 1 end, 1))
+            from Basket b
+            left join b.orderItems orderItem
+            join Product p
+            on p.id = orderItem.product.id
+            where b.user.email = :email
+            """)
+    Integer priceCount(
+            @Param(value = "email") String email
+    );
 }

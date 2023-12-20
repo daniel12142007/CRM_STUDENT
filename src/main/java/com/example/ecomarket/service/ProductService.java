@@ -48,4 +48,8 @@ public class ProductService {
         productRepository.save(product);
         return modelMapper.map(product, ProductResponse.class);
     }
+
+    public Integer basketSum(String email) {
+        return productRepository.priceCount(email);
+    }
 }
