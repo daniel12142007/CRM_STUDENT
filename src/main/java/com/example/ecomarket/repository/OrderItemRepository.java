@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @Repository
 @Transactional
@@ -21,4 +22,12 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             @Param(value = "productId") Long productId,
             @Param(value = "email") String email
     );
+
+    @Query("""
+            select b.orderItems
+            from Basket b
+            where b.user.email = :email
+            """)
+    List<OrderItem> findAllItemsByEmail(
+            @Param(value = "email") String email);
 }

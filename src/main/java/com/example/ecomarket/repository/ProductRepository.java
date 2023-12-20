@@ -1,6 +1,7 @@
 package com.example.ecomarket.repository;
 
 import com.example.ecomarket.dto.response.ProductResponse;
+import com.example.ecomarket.model.OrderItem;
 import com.example.ecomarket.model.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -99,6 +100,22 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             where b.user.email = :email
             """)
     Integer priceCount(
-            @Param(value = "email") String email
-    );
+            @Param(value = "email") String email);
+
+    @Query("""
+            select
+            new com.example.ecomarket.dto.response.ProductResponse(
+            p.id,
+            p.image,
+            p.title,
+            p.description,
+            p.price*coalesce(case when p.id = orderItem.product.id then orderItem.quantity else 1 end, 1) ,
+            coalesce(case when p.id != orderItem.product.id or orderItem.product.id is null then p.count else orderItem.quantity end, p.count))
+            from Order o,Product p
+            join o.orderItems orderItem
+            on orderItem.product.id = p.id
+            where o.id = :id
+            """)
+    List<ProductResponse> findAllProductResponseById(@Param(value = "id") Long id);
+
 }
