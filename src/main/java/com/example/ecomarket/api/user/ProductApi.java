@@ -51,8 +51,7 @@ public class ProductApi {
     }
 
     @PostMapping("add/product")
-    @PreAuthorize("isAuthenticated()")
-    public ProductResponse hello(@RequestParam Long id) {
+    public ProductResponse addProduct(@RequestParam Long id) {
         return orderService.saveProductOnOrder(
                 id,
                 SecurityContextHolder.getContext().getAuthentication().getName());

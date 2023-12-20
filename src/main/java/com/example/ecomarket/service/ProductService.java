@@ -3,16 +3,13 @@ package com.example.ecomarket.service;
 import com.example.ecomarket.dto.request.ProductRequest;
 import com.example.ecomarket.dto.response.ProductResponse;
 import com.example.ecomarket.model.Category;
-import com.example.ecomarket.model.OrderItem;
 import com.example.ecomarket.model.Product;
 import com.example.ecomarket.repository.CategoryRepository;
 import com.example.ecomarket.repository.ProductRepository;
-import com.example.ecomarket.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -21,7 +18,6 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ModelMapper modelMapper;
-    private final UserRepository userRepository;
 
     public List<ProductResponse> searchProductByTitleAndCategoryId(String email, Long categoryId) {
         return productRepository.findOrderItemByIdAndEmail(email, categoryId);
