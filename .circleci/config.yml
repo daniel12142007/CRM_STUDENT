@@ -3,7 +3,7 @@ version: 2.1
 parameters:
   docker-container:
     type: string
-    default: "crm"
+    default: "crm_student"
     description: "Docker container name for crm"
 
 jobs:
@@ -76,11 +76,11 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - dev
       - transfer-and-run:
           requires:
             - deploy-to-development
           filters:
             branches:
               only:
-                - master
+                - dev
