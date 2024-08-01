@@ -9,7 +9,7 @@ import com.kaitech.student_crm.payload.request.SignUpRequest;
 import com.kaitech.student_crm.payload.response.JWTTokenSuccessResponse;
 import com.kaitech.student_crm.payload.response.MessageResponse;
 import com.kaitech.student_crm.repositories.UserRepository;
-import com.kaitech.student_crm.security.config.JwtUtils;
+import com.kaitech.student_crm.config.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

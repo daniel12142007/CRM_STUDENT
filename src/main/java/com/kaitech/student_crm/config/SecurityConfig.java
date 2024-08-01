@@ -1,4 +1,4 @@
-package com.kaitech.student_crm.security.config;
+package com.kaitech.student_crm.config;
 
 import com.kaitech.student_crm.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;

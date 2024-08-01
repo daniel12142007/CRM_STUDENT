@@ -17,7 +17,7 @@ public class SwaggerConfigs {
     public OpenAPI openAPI() {
         return new OpenAPI()
                 .components(new Components().addSecuritySchemes("Bearer token", securityScheme()))
-                .info(new Info().title("DANIEL").description("Written by: daniel_tamoe"))
+                .info(new Info().title("CRM").description("Backend"))
                 .security(List.of(new SecurityRequirement().addList("Bearer token")));
     }
 
