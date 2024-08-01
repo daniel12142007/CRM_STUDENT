@@ -1,0 +1,26 @@
+version: "3.9"
+services:
+  backend:
+    image: crm
+    container_name: backend
+    ports:
+      - "80:2023"
+    environment:
+      APP_DATABASE_URL: jdbc:postgresql://database:5432/postgres
+      APP_DATABASE_USER: crmuser
+      APP_DATABASE_PASS: crmpass
+      SERVER_PORT: 2023
+      SPRING_PROFILES_ACTIVE: dev
+  database:
+    image: postgres:latest
+    restart: always
+    container_name: database
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: crmuser
+      POSTGRES_PASSWORD: crmpass
+    volumes:
+      - db_data:/var/lib/postgresql/data
+volumes:
+  db_data:
