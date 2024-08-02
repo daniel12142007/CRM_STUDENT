@@ -37,5 +37,5 @@ values ('Daniel', 'Ahatdzhanov', 'ROLE_STUDENT', 'student@gmail.com',
         '$2a$10$HnbCS5GOhvpQYP8JjSPYhO.ID54WDfq8.nv99cp92MuGXOFVPU4S.', 0);
 -- password=stringst
 -- добавляем пользователя для студента
-insert into student(image, first_name, last_name, email, phone_number, status, code, registered, direction_id, user_id)
-values ('image', 'Daniel', 'Ahatdzhanov', 'student@gmail.com', '+996 700 800 900', 'EMPLOYED', 0, true, 5, 2)
+insert into student(image, first_name, last_name, email, phone_number, status, point, code, registered, direction_id, user_id)
+values ('image', 'Daniel', 'Ahatdzhanov', 'student@gmail.com', '+996 700 800 900', 'EMPLOYED', 100, 0, true, 5, 2)
