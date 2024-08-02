@@ -18,9 +18,5 @@ public record ProjectResponse(
     public ProjectResponse(Long id, String title, String description, ProjectType projectType, LocalDate startDate, LocalDate endDate) {
         this(id, title, description, projectType, null, startDate, endDate);
     }
-
-    public ProjectResponse(Long id, String title, String description, ProjectType projectType, List<StudentResponse> students) {
-        this(id, title, description, projectType, students, null, null);
-    }
 }
 

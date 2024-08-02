@@ -29,10 +29,5 @@ public class DirectionResponse {
         this.name = name;
     }
 
-    public DirectionResponse(Long id, String name, List<StudentDTO> students) {
-        this.id = id;
-        this.name = name;
-        this.students = students;
-    }
 
 }

@@ -54,9 +54,7 @@ public class StudentDTO {
         this.phoneNumber = phoneNumber;
     }
 
-    public StudentDTO(Long id) {
-        this.id = id;
-    }
+
 
 
 }

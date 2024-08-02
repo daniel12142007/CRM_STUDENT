@@ -19,12 +19,4 @@ public class CreateReportDTO {
     @NotNull(message = "The field should not be empty")
     private boolean isDone;
 
-
-    public boolean isDone() {
-        return isDone;
-    }
-
-    public void setDone(boolean done) {
-        isDone = done;
-    }
 }

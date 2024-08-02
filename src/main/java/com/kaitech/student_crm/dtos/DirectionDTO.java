@@ -19,12 +19,6 @@ public class DirectionDTO {
     private List<StudentDTO> students;
 
 
-    public DirectionDTO(Long id, String name, List<StudentDTO> students) {
-        this.id = id;
-        this.name = name;
-        this.students = students;
-    }
-
 
 
 

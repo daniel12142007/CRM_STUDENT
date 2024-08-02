@@ -17,17 +17,6 @@ public class ServiceItem {
     @JoinColumn(name = "services_id")
     private Services services;
 
-    public ServiceItem(Long id, String title, String description, Services services) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.services = services;
-    }
 
-    public ServiceItem(String title, String description, Services services) {
-        this.title = title;
-        this.description = description;
-        this.services = services;
-    }
 
 }

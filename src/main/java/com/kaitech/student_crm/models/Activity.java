@@ -1,10 +1,12 @@
 package com.kaitech.student_crm.models;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 @Data
 @Entity
+@NoArgsConstructor
 @Table(name = "activity")
 public class Activity {
 
@@ -18,7 +20,5 @@ public class Activity {
     @Column(nullable = false)
     private String description;
 
-    public Activity() {
-    }
 
 }
