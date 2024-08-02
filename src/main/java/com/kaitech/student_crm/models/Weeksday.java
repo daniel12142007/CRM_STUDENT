@@ -1,8 +1,11 @@
 package com.kaitech.student_crm.models;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 
-
+@Data
 @Entity
 @Table(name = "weeksday")
 public class Weeksday {
@@ -13,30 +16,5 @@ public class Weeksday {
 
     @Column(nullable = false)
     private String name;
-
-
-    public Weeksday() {
-    }
-
-    public Weeksday(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
 }
