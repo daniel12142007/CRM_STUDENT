@@ -1,6 +1,6 @@
 package com.kaitech.student_crm.services;
 
-import com.kaitech.student_crm.exceptions.ActivityNotFoundException;
+import com.kaitech.student_crm.exceptions.NotFoundException;
 import com.kaitech.student_crm.models.Activity;
 import com.kaitech.student_crm.repositories.ActivityRepository;
 import org.slf4j.Logger;
@@ -51,7 +51,7 @@ public class ActivityService {
             return activityRepository.save(existingActivity);
         } else {
             LOGGER.error("Activity с ID: {} не найдена", id);
-            throw new ActivityNotFoundException("Activity not found with id " + id);
+            throw new NotFoundException("Activity not found with id " + id);
         }
     }
 
@@ -62,7 +62,7 @@ public class ActivityService {
             LOGGER.info("Activity с ID: {} успешно удалена", id);
         } else {
             LOGGER.error("Activity с ID: {} не найдена", id);
-            throw new ActivityNotFoundException("Activity not found with id " + id);
+            throw new NotFoundException("Activity not found with id " + id);
         }
     }
 }

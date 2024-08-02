@@ -1,6 +1,6 @@
 package com.kaitech.student_crm.services;
 
-import com.kaitech.student_crm.exceptions.ServiceNotFoundException;
+import com.kaitech.student_crm.exceptions.NotFoundException;
 import com.kaitech.student_crm.models.Services;
 import com.kaitech.student_crm.payload.request.ServicesRequest;
 import com.kaitech.student_crm.payload.response.MessageResponse;
@@ -37,7 +37,7 @@ public class ServicesService {
         Services services = servicesRepository.findById(serviceId).orElseThrow(
                 () -> {
                     LOGGER.error("Услуга с ID: {} не найдена", serviceId);
-                    return new ServiceNotFoundException("Not found service ID: " + serviceId);
+                    return new NotFoundException("Not found service ID: " + serviceId);
                 }
         );
         services = new Services(services.getId(), request.title(), request.description(), request.price());
@@ -51,7 +51,7 @@ public class ServicesService {
         return servicesRepository.findByIdResponse(serviceId).orElseThrow(
                 () -> {
                     LOGGER.error("Услуга с ID: {} не найдена", serviceId);
-                    return new ServiceNotFoundException("Not found service ID: " + serviceId);
+                    return new NotFoundException("Not found service ID: " + serviceId);
                 }
         );
     }
@@ -66,7 +66,7 @@ public class ServicesService {
         Services services = servicesRepository.findById(serviceId).orElseThrow(
                 () -> {
                     LOGGER.error("Услуга с ID: {} не найдена", serviceId);
-                    return new ServiceNotFoundException("Not found service ID: " + serviceId);
+                    return new NotFoundException("Not found service ID: " + serviceId);
                 }
         );
         servicesRepository.delete(services);

@@ -2,9 +2,7 @@ package com.kaitech.student_crm.controllers;
 
 import com.kaitech.student_crm.dtos.ActivityDTO;
 import com.kaitech.student_crm.exceptions.ActivityErrorResponse;
-import com.kaitech.student_crm.exceptions.ActivityNotCreatedException;
-import com.kaitech.student_crm.exceptions.ActivityNotFoundException;
-import com.kaitech.student_crm.exceptions.ActivityNotUpdatedException;
+import com.kaitech.student_crm.exceptions.NotFoundException;
 import com.kaitech.student_crm.models.Activity;
 import com.kaitech.student_crm.services.ActivityService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -61,8 +59,7 @@ public class ActivityController {
                         .append(" - ").append(error.getDefaultMessage())
                         .append(",");
             }
-
-            throw new ActivityNotCreatedException(errorMessage.toString());
+            throw new NotFoundException(errorMessage.toString());
         }
 
         activityService.addActivity(convertToActivity(activityDTO));
@@ -84,8 +81,7 @@ public class ActivityController {
                         .append(" - ").append(error.getDefaultMessage())
                         .append(",");
             }
-
-            throw new ActivityNotUpdatedException(errorMessage.toString());
+            throw new NotFoundException(errorMessage.toString());
         }
 
         activityService.updateActivity(id, convertToActivity(activityDTO));
@@ -98,26 +94,6 @@ public class ActivityController {
     public ResponseEntity<HttpStatus> deleteActivity(@PathVariable Long id) {
         activityService.deleteActivity(id);
         return ResponseEntity.ok(HttpStatus.OK);
-    }
-
-    @ExceptionHandler
-    private ResponseEntity<ActivityErrorResponse> handleException(ActivityNotFoundException e) {
-        ActivityErrorResponse activityErrorResponse = new ActivityErrorResponse(
-                "Activity with this id wasn't found!",
-                System.currentTimeMillis()
-        );
-
-        return new ResponseEntity<>(activityErrorResponse, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler
-    private ResponseEntity<ActivityErrorResponse> handleException(ActivityNotCreatedException e) {
-        ActivityErrorResponse activityErrorResponse = new ActivityErrorResponse(
-                e.getMessage(),
-                System.currentTimeMillis()
-        );
-
-        return new ResponseEntity<>(activityErrorResponse, HttpStatus.NOT_FOUND);
     }
 
     private Activity convertToActivity(ActivityDTO activityDTO) {
