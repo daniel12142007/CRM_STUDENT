@@ -1,9 +1,13 @@
 package com.kaitech.student_crm.dtos;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.Column;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
-
+@Data
+@NoArgsConstructor
 public class DirectionDTO {
     private Long id;
     @Column(unique = true, nullable = false)
@@ -21,32 +25,7 @@ public class DirectionDTO {
         this.students = students;
     }
 
-    public DirectionDTO() {
-    }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public @NotEmpty String getName() {
-        return name;
-    }
-
-    public void setName(@NotEmpty String name) {
-        this.name = name;
-    }
 
 
 }

@@ -1,8 +1,12 @@
 package com.kaitech.student_crm.models;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 import java.util.List;
-
+@Data
+@NoArgsConstructor
 @Entity
 public class Services {
     @Id
@@ -29,46 +33,4 @@ public class Services {
         this.price = price;
     }
 
-    public Services() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Integer getPrice() {
-        return price;
-    }
-
-    public void setPrice(Integer price) {
-        this.price = price;
-    }
-
-    public List<ServiceItem> getServiceItems() {
-        return serviceItems;
-    }
-
-    public void setServiceItems(List<ServiceItem> serviceItems) {
-        this.serviceItems = serviceItems;
-    }
 }

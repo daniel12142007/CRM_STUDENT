@@ -1,7 +1,11 @@
 package com.kaitech.student_crm.models;
 
-import javax.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import javax.persistence.*;
+@Data
+@NoArgsConstructor
 @Entity
 public class ServiceItem {
     @Id
@@ -12,9 +16,6 @@ public class ServiceItem {
     @ManyToOne
     @JoinColumn(name = "services_id")
     private Services services;
-
-    public ServiceItem() {
-    }
 
     public ServiceItem(Long id, String title, String description, Services services) {
         this.id = id;
@@ -29,35 +30,4 @@ public class ServiceItem {
         this.services = services;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Services getServices() {
-        return services;
-    }
-
-    public void setServices(Services services) {
-        this.services = services;
-    }
 }
