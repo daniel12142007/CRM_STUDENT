@@ -3,7 +3,7 @@ package com.kaitech.student_crm.services;
 import com.kaitech.student_crm.dtos.StudentDTO;
 import com.kaitech.student_crm.dtos.StudentDTOForAll;
 import com.kaitech.student_crm.exceptions.EmailAlreadyExistsException;
-import com.kaitech.student_crm.exceptions.StudentNotFoundException;
+import com.kaitech.student_crm.exceptions.NotFoundException;
 import com.kaitech.student_crm.exceptions.UserExistException;
 import com.kaitech.student_crm.models.Project;
 import com.kaitech.student_crm.models.Student;
@@ -172,7 +172,7 @@ public class StudentUserService {
     public Student getStudentById(Long studentId) {
         LOGGER.info("Получение студента сущности с ID: {}", studentId);
         return studentUserRepository.findUserById(studentId)
-                .orElseThrow(() -> new StudentNotFoundException("Student cannot be found"));
+                .orElseThrow(() -> new NotFoundException("Student cannot be found"));
     }
 
     @Transactional
@@ -280,7 +280,7 @@ public class StudentUserService {
         Student student = studentUserRepository.findById(studentId).orElseThrow(
                 () -> {
                     LOGGER.error("Студент с ID: {} не найден", studentId);
-                    return new StudentNotFoundException("Not found student ID: " + studentId);
+                    return new NotFoundException("Not found student ID: " + studentId);
                 });
 
         student.setPoint(point);
@@ -295,7 +295,7 @@ public class StudentUserService {
         studentUserRepository.findById(studentId).orElseThrow(
                 () -> {
                     LOGGER.error("Студент с ID: {} не найден", studentId);
-                    return new StudentNotFoundException("Not found student ID: " + studentId);
+                    return new NotFoundException("Not found student ID: " + studentId);
                 });
 
         StudentDTO dto = studentUserRepository.findByIdStudentDTO(studentId);

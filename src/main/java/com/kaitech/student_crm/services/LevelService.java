@@ -1,7 +1,7 @@
 package com.kaitech.student_crm.services;
 
 import com.kaitech.student_crm.exceptions.LevelBadRequest;
-import com.kaitech.student_crm.exceptions.LevelNotFound;
+import com.kaitech.student_crm.exceptions.NotFoundException;
 import com.kaitech.student_crm.models.Level;
 import com.kaitech.student_crm.payload.request.LevelRequest;
 import com.kaitech.student_crm.payload.response.LevelResponse;
@@ -48,7 +48,7 @@ public class LevelService {
 
     public LevelResponse updateLevel(LevelRequest request, Long levelId) {
         Level level = levelRepository.findById(levelId).orElseThrow(
-                () -> new LevelNotFound("Not found level ID:" + levelId)
+                () -> new NotFoundException("Not found level ID:" + levelId)
         );
         checkPoint(request);
         if (levelRepository.existsByTitleAndIdNot(request.title(), levelId)) {
@@ -77,14 +77,14 @@ public class LevelService {
     public LevelResponse findById(Long levelId) {
         return levelRepository.findByIdResponse(levelId).orElseThrow(() -> {
             LOGGER.error("Не удалось найти уровень с ID: {}", levelId);
-            return new LevelNotFound("Level not found with ID: " + levelId);
+            return new NotFoundException("Level not found with ID: " + levelId);
         });
     }
 
     public LevelResponse findByTitle(String title) {
         return levelRepository.findByTitleResponse(title).orElseThrow(() -> {
             LOGGER.error("Не удалось найти уровень с Title: {}", title);
-            return new LevelNotFound("Level not found with Title: " + title);
+            return new NotFoundException("Level not found with Title: " + title);
         });
     }
 
@@ -94,7 +94,7 @@ public class LevelService {
 
     public List<LevelResponse> deleteById(Long levelId) {
         Level level = levelRepository.findById(levelId).orElseThrow(
-                () -> new LevelNotFound("Not found level ID:" + levelId)
+                () -> new NotFoundException("Not found level ID:" + levelId)
         );
         try {
             levelRepository.delete(level);

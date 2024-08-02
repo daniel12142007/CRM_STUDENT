@@ -1,7 +1,6 @@
 package com.kaitech.student_crm.services;
 
-import com.kaitech.student_crm.exceptions.DirectionNotFoundException;
-import com.kaitech.student_crm.exceptions.ResourceNotFoundException;
+import com.kaitech.student_crm.exceptions.NotFoundException;
 import com.kaitech.student_crm.models.Direction;
 import com.kaitech.student_crm.models.Student;
 import com.kaitech.student_crm.payload.request.DirectionCreateRequest;
@@ -101,7 +100,7 @@ public class DirectionService {
     public void deleteDirection(Long id) {
         LOGGER.info("Удаление Direction с id: {}", id);
         Direction direction = directionRepository.findById(id)
-                .orElseThrow(() -> new DirectionNotFoundException("Direction not found"));
+                .orElseThrow(() -> new NotFoundException("Direction not found"));
 
         directionRepository.delete(direction);
         LOGGER.info("Direction с id: {} успешно удален", id);
@@ -115,7 +114,7 @@ public class DirectionService {
     public DirectionResponse getById(Long id) {
         LOGGER.info("Получение Direction по id: {}", id);
         Direction direction = directionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Direction not found with id: " + id));
+                .orElseThrow(() -> new NotFoundException("Direction not found with id: " + id));
 
         DirectionResponse response = new DirectionResponse();
         response.setId(direction.getId());
