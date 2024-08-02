@@ -1,14 +1,10 @@
 package com.kaitech.student_crm.controllers;
 
-import com.kaitech.student_crm.exceptions.LevelBadRequest;
-import com.kaitech.student_crm.exceptions.LevelNotFound;
 import com.kaitech.student_crm.payload.request.LevelRequest;
 import com.kaitech.student_crm.payload.response.LevelResponse;
-import com.kaitech.student_crm.payload.response.MessageResponse;
 import com.kaitech.student_crm.services.LevelService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -75,23 +71,5 @@ public class LevelController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<LevelResponse>> deleteById(@PathVariable Long levelId) {
         return ResponseEntity.ok(levelService.deleteById(levelId));
-    }
-
-    @ExceptionHandler(LevelBadRequest.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ResponseEntity<MessageResponse> handleLevelBadRequest(LevelBadRequest e) {
-        return new ResponseEntity<>(new MessageResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(LevelNotFound.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    private ResponseEntity<MessageResponse> handleLevelNotFound(LevelNotFound e) {
-        return new ResponseEntity<>(new MessageResponse(e.getMessage()), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(RuntimeException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    private ResponseEntity<MessageResponse> handleLevelNotFound(RuntimeException e) {
-        return new ResponseEntity<>(new MessageResponse(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

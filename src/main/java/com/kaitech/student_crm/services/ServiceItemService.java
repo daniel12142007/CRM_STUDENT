@@ -1,7 +1,6 @@
 package com.kaitech.student_crm.services;
 
-import com.kaitech.student_crm.exceptions.ItemNotFound;
-import com.kaitech.student_crm.exceptions.ServiceNotFoundException;
+import com.kaitech.student_crm.exceptions.NotFoundException;
 import com.kaitech.student_crm.models.ServiceItem;
 import com.kaitech.student_crm.payload.request.ServiceItemRequest;
 import com.kaitech.student_crm.payload.response.MessageResponse;
@@ -14,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.management.ServiceNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,7 +33,7 @@ public class ServiceItemService {
 
         if (servicesRepository.findById(request.serviceId()).isEmpty()) {
             LOGGER.error("Service с ID {} не найден", request.serviceId());
-            throw new ItemNotFound("Not found Service ID: " + request.serviceId());
+            throw new NotFoundException("Not found Service ID: " + request.serviceId());
         }
 
         ServiceItem serviceItem = new ServiceItem();
@@ -46,7 +46,7 @@ public class ServiceItemService {
         return serviceItemRepository.findByIdResponse(serviceItem.getId())
                 .orElseThrow(() -> {
                     LOGGER.error("Service item с ID {} не найден", serviceItem.getId());
-                    return new ItemNotFound("Not found Service Item ID: " + serviceItem.getId());
+                    return new NotFoundException("Not found Service Item ID: " + serviceItem.getId());
                 });
     }
 
@@ -54,7 +54,7 @@ public class ServiceItemService {
         return serviceItemRepository.findByIdResponse(id)
                 .orElseThrow(() -> {
                     LOGGER.error("Service item с ID {} не найден", id);
-                    return new ItemNotFound("Not found Service item ID: " + id);
+                    return new NotFoundException("Not found Service item ID: " + id);
                 });
     }
 
@@ -71,13 +71,13 @@ public class ServiceItemService {
         Optional<ServiceItem> optionalServiceItem = serviceItemRepository.findById(id);
         if (optionalServiceItem.isEmpty()) {
             LOGGER.error("Service item с ID {} не найден", id);
-            throw new ItemNotFound("Not found Service ID: " + id);
+            throw new NotFoundException("Not found Service ID: " + id);
         }
 
         ServiceItem serviceItem = optionalServiceItem.get();
         if (servicesRepository.findById(request.serviceId()).isEmpty()) {
             LOGGER.error("Service с ID {} не найден", request.serviceId());
-            throw new ServiceNotFoundException("Not found Service ID: " + request.serviceId());
+            throw new NotFoundException("Not found Service ID: " + request.serviceId());
         }
 
         serviceItem.setTitle(request.title());
@@ -89,14 +89,14 @@ public class ServiceItemService {
         return serviceItemRepository.findByIdResponse(id)
                 .orElseThrow(() -> {
                     LOGGER.error("Service item с ID {} не найден", id);
-                    return new ItemNotFound("Not found Service item ID: " + id);
+                    return new NotFoundException("Not found Service item ID: " + id);
                 });
     }
 
     public MessageResponse deleteItemById(Long id) {
         if (!serviceItemRepository.existsById(id)) {
             LOGGER.error("Service item с ID {} не найден", id);
-            throw new ItemNotFound("Not found Service item ID: " + id);
+            throw new NotFoundException("Not found Service item ID: " + id);
         }
         serviceItemRepository.deleteById(id);
         LOGGER.info("Удален service item с ID {}", id);

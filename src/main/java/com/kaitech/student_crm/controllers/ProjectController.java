@@ -1,10 +1,6 @@
 package com.kaitech.student_crm.controllers;
 
-import com.kaitech.student_crm.exceptions.ProjectAlreadyCompletedException;
-import com.kaitech.student_crm.exceptions.ProjectNotFoundException;
-import com.kaitech.student_crm.exceptions.StudentNotFoundException;
 import com.kaitech.student_crm.payload.request.ProjectRequest;
-import com.kaitech.student_crm.payload.response.MessageResponse;
 import com.kaitech.student_crm.payload.response.ProjectResponse;
 import com.kaitech.student_crm.services.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -86,34 +81,5 @@ public class ProjectController {
     public ProjectResponse saveAllStudent(@PathVariable Long projectId,
                                           @RequestParam List<Long> studentIds) {
         return projectService.saveAllStudentInProject(projectId, studentIds);
-    }
-    @ExceptionHandler(ProjectNotFoundException.class)
-    public ResponseEntity<MessageResponse> handleProjectNotFoundException(ProjectNotFoundException ex) {
-        MessageResponse messageResponse = new MessageResponse("Project not found this id");
-        return new ResponseEntity<>(messageResponse, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<MessageResponse> handleException(Exception ex) {
-        MessageResponse messageResponse = new MessageResponse("Internal Server Error");
-        return new ResponseEntity<>(messageResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler(StudentNotFoundException.class)
-    public ResponseEntity<MessageResponse> handleProjectNotFoundException(StudentNotFoundException ex) {
-        MessageResponse messageResponse = new MessageResponse("Student not found this id");
-        return new ResponseEntity<>(messageResponse, HttpStatus.NOT_FOUND);
-    }
-    @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<Object> handleResponseStatusException(ResponseStatusException ex) {
-        return new ResponseEntity<>(ex.getReason(), ex.getStatus());
-    }
-    @ExceptionHandler(ProjectAlreadyCompletedException.class)
-    public ResponseEntity<String> handleProjectAlreadyCompletedException(ProjectAlreadyCompletedException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    }
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 }
