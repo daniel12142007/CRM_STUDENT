@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 @Data
-@NoArgsConstructor
 public class ActivityDTO {
 
     private Long id;

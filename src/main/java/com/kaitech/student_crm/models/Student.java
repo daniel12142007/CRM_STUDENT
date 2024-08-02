@@ -8,7 +8,6 @@ import javax.persistence.*;
 import java.util.List;
 import java.util.Set;
 @Data
-@NoArgsConstructor
 @Entity
 public class Student {
     @Id

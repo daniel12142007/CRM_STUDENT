@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 @Data
-@NoArgsConstructor
 public class CreateReportDTO {
     @NotNull(message = "Activity ID cannot be null")
     private Long activityId;

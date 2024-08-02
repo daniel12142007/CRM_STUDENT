@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class WeeksdayDTO {
 
     private Long id;

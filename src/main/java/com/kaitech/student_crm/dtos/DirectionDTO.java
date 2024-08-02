@@ -7,7 +7,6 @@ import javax.persistence.Column;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 @Data
-@NoArgsConstructor
 public class DirectionDTO {
     private Long id;
     @Column(unique = true, nullable = false)

@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.util.List;
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "direction")
 public class Direction {
@@ -22,5 +22,4 @@ public class Direction {
 
     @OneToMany(mappedBy = "direction")
     private List<Student> students;
-
 }

@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 @Data
-@NoArgsConstructor
 @Entity
 public class ServiceItem {
     @Id
