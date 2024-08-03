@@ -5,12 +5,14 @@ import com.kaitech.student_crm.dtos.StudentDTOForAll;
 import com.kaitech.student_crm.exceptions.EmailAlreadyExistsException;
 import com.kaitech.student_crm.exceptions.NotFoundException;
 import com.kaitech.student_crm.exceptions.UserExistException;
+import com.kaitech.student_crm.models.Direction;
 import com.kaitech.student_crm.models.Project;
 import com.kaitech.student_crm.models.Student;
 import com.kaitech.student_crm.models.User;
 import com.kaitech.student_crm.models.enums.ERole;
 import com.kaitech.student_crm.models.enums.Status;
 import com.kaitech.student_crm.payload.request.StudentDataRequest;
+import com.kaitech.student_crm.payload.request.StudentRequest;
 import com.kaitech.student_crm.payload.response.StudentResponse;
 import com.kaitech.student_crm.repositories.DirectionRepository;
 import com.kaitech.student_crm.repositories.ProjectRepository;
@@ -23,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,9 +58,9 @@ public class StudentUserService {
         this.projectRepository = projectRepository;
     }
 
-    public StudentResponse createStudent(StudentDataRequest student,
-                                         Status status,
-                                         Long directionId) {
+    public StudentDTO createStudent(StudentDataRequest student,
+                                    Status status,
+                                    Long directionId) {
         LOGGER.info("Попытка создания нового студента с email: {}", student.getEmail());
 
         if (directionRepository.findById(directionId).isEmpty()) {
@@ -100,10 +103,10 @@ public class StudentUserService {
             throw new UserExistException("The student " + newStudent.getFirstName() + " " + newStudent.getLastName() + " already exists");
         }
 
-        return findById(newStudent.getId());
+        return findByIdStudentInfo(newStudent.getId());
     }
 
-    public Student updateStudent(Long studentId, StudentDTO updatedStudentDTO) {
+    public StudentDTO updateStudent(Long studentId, StudentRequest request) {
         LOGGER.info("Обновление студента с ID: {}", studentId);
 
         Optional<Student> studentOptional = studentUserRepository.findById(studentId);
@@ -111,22 +114,36 @@ public class StudentUserService {
         if (studentOptional.isPresent()) {
             Student student = studentOptional.get();
 
-            if (!student.getEmail().equals(updatedStudentDTO.getEmail())) {
-                boolean emailExists = studentUserRepository.existsByEmail(updatedStudentDTO.getEmail());
+            if (!student.getEmail().equals(request.email())) {
+                boolean emailExists = studentUserRepository.existsByEmail(request.email());
                 if (emailExists) {
-                    LOGGER.error("Email {} уже используется", updatedStudentDTO.getEmail());
-                    throw new EmailAlreadyExistsException("Email " + updatedStudentDTO.getEmail() + " is already in use");
+                    LOGGER.error("Email {} уже используется", request.email());
+                    throw new EmailAlreadyExistsException("Email " + request.email() + " is already in use");
                 }
             }
+            if (request.direction() != 0 && !studentOptional.get().getDirection().getId().equals(request.direction())) {
+                Direction direction = directionRepository.findById(request.direction()).orElseThrow(
+                        () -> new NotFoundException("Not found direction ID:" + request.direction())
+                );
+                student.setDirection(direction);
+            }
+            User user = userRepository.findUserByEmail(student.getEmail()).orElseThrow(
+                    () -> new NotFoundException("Not Found user email: " + student.getEmail())
+            );
+            user.setEmail(request.email());
+            user.setFirstname(request.firstName());
+            user.setLastname(request.lastName());
+            student.setImage(request.image());
+            student.setFirstName(request.firstName());
+            student.setLastName(request.lastName());
+            student.setEmail(request.email());
+            student.setPhoneNumber(request.phoneNumber());
+            student.setPoint(request.point());
+            studentUserRepository.save(student);
+            userRepository.save(user);
 
-            student.setFirstName(updatedStudentDTO.getFirstname());
-            student.setLastName(updatedStudentDTO.getLastname());
-            student.setEmail(updatedStudentDTO.getEmail());
-            student.setPhoneNumber(updatedStudentDTO.getPhoneNumber());
-
-            Student updatedStudent = studentUserRepository.save(student);
             LOGGER.info("Студент с ID: {} успешно обновлён", studentId);
-            return updatedStudent;
+            return findByIdStudentInfo(studentId);
         } else {
             LOGGER.error("Студент с ID: {} не найден", studentId);
             throw new UserExistException("Student not found with id - " + studentId);
@@ -192,14 +209,9 @@ public class StudentUserService {
         LOGGER.info("Студент с ID: {} успешно удалён", studentId);
     }
 
-    public StudentResponse findById(Long studentId) {
-        LOGGER.info("Поиск студента по ID: {}", studentId);
-        return studentUserRepository.findByIdResponse(studentId);
-    }
-
-    public StudentResponse registerStudent(String email,
-                                           Integer code,
-                                           String password) {
+    public StudentDTO registerStudent(String email,
+                                      Integer code,
+                                      String password) {
         LOGGER.info("Регистрация студента с email: {}", email);
 
         Student student = studentUserRepository.findByEmail(email).orElseThrow(
@@ -232,7 +244,7 @@ public class StudentUserService {
         studentUserRepository.save(student);
 
         LOGGER.info("Студент с email: {} успешно зарегистрирован", email);
-        return findById(student.getId());
+        return findByIdStudentInfo(student.getId());
     }
 
     @Transactional
@@ -291,16 +303,42 @@ public class StudentUserService {
 
     public StudentDTO findByIdStudentInfo(Long studentId) {
         LOGGER.info("Поиск информации о студенте с ID: {}", studentId);
-
-        studentUserRepository.findById(studentId).orElseThrow(
+        StudentDTO dto = studentUserRepository.findByIdStudentDTO(studentId).orElseThrow(
                 () -> {
                     LOGGER.error("Студент с ID: {} не найден", studentId);
                     return new NotFoundException("Not found student ID: " + studentId);
                 });
-
-        StudentDTO dto = studentUserRepository.findByIdStudentDTO(studentId);
         dto.setProjects(projectRepository.findTitlesByStudentId(studentId));
+        if (dto.getLevel() == null)
+            dto.setLevel(studentUserRepository.findLevelIfNull(dto.getPoint(), dto.getId()));
         LOGGER.info("Информация о студенте с ID: {} успешно найдена", studentId);
         return dto;
+    }
+
+    public StudentDTO deleteImage(String email, Long studentId) {
+        LOGGER.info("Попытка удалить изображение студента. ID студента: {}, Email пользователя: {}", studentId, email);
+        Student student = studentUserRepository.findById(studentId).orElseThrow(
+                () -> {
+                    LOGGER.error("Студент с ID {} не найден", studentId);
+                    return new NotFoundException("Not found student ID : " + studentId);
+                }
+        );
+        User user = userRepository.findUserByEmail(email).orElseThrow(
+                () -> {
+                    LOGGER.error("Пользователь с email {} не найден", email);
+                    return new NotFoundException("Not found user email : " + email);
+                }
+        );
+        student.setImage(null);
+        if (user.getRole().equals(ERole.ROLE_ADMIN) || student.getEmail().equals(email)) {
+            LOGGER.info("Пользователь имеет права для изменения изображения или является владельцем аккаунта.");
+            studentUserRepository.save(student);
+            LOGGER.info("Изображение студента с ID {} успешно удалено", studentId);
+        } else {
+            LOGGER.warn("Попытка изменения изображения студента с ID {} от пользователя с Email {} без достаточных прав", studentId, email);
+            throw new AccessDeniedException("You do not have access to change the student's photo, you must be an admin or the owner of this account");
+        }
+        LOGGER.info("Возвращение информации о студенте с ID {}", studentId);
+        return findByIdStudentInfo(studentId);
     }
 }
