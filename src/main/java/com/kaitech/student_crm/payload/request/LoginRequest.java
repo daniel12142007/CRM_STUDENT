@@ -1,8 +1,11 @@
 package com.kaitech.student_crm.payload.request;
 
 
-import javax.validation.constraints.NotEmpty;
+import lombok.Data;
+import lombok.Setter;
 
+import javax.validation.constraints.NotEmpty;
+@Data
 public class LoginRequest {
 
     @NotEmpty(message = "Email cannot be empty")
@@ -11,19 +14,4 @@ public class LoginRequest {
     @NotEmpty(message = "Password cannot be empty")
     private String password;
 
-    public @NotEmpty(message = "Password cannot be empty") String getPassword() {
-        return password;
-    }
-
-    public void setPassword(@NotEmpty(message = "Password cannot be empty") String password) {
-        this.password = password;
-    }
-
-    public @NotEmpty(message = "Email cannot be empty") String getEmail() {
-        return email;
-    }
-
-    public void setEmail(@NotEmpty(message = "Email cannot be empty") String email) {
-        this.email = email;
-    }
 }

@@ -1,8 +1,11 @@
 package com.kaitech.student_crm.dtos;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
-
+@Data
 public class ActivityDTO {
 
     private Long id;
@@ -15,36 +18,4 @@ public class ActivityDTO {
     @Size(min = 2, max = 100, message = "Описание должно содержать от 2 до 100 символов!")
     private String description;
 
-    public ActivityDTO() {
-    }
-
-    public ActivityDTO(Long id, String title, String description) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 }
