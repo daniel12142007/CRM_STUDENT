@@ -70,12 +70,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     private ResponseEntity<MessageResponse> handleLevelNotFound(RuntimeException e) {
-        return new ResponseEntity<>(new MessageResponse(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new MessageResponse(e.getMessage()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    private ResponseEntity<MessageResponse> handleLevelNotFound(AccessDeniedException e) {
+    private ResponseEntity<MessageResponse> handlerAccessDenied(AccessDeniedException e) {
         return new ResponseEntity<>(new MessageResponse(e.getMessage()), HttpStatus.FORBIDDEN);
     }
 }

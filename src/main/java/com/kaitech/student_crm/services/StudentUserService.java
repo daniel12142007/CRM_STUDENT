@@ -127,6 +127,12 @@ public class StudentUserService {
                 );
                 student.setDirection(direction);
             }
+            User user = userRepository.findUserByEmail(student.getEmail()).orElseThrow(
+                    () -> new NotFoundException("Not Found user email: " + student.getEmail())
+            );
+            user.setEmail(request.email());
+            user.setFirstname(request.firstName());
+            user.setLastname(request.lastName());
             student.setImage(request.image());
             student.setFirstName(request.firstName());
             student.setLastName(request.lastName());
@@ -134,6 +140,7 @@ public class StudentUserService {
             student.setPhoneNumber(request.phoneNumber());
             student.setPoint(request.point());
             studentUserRepository.save(student);
+            userRepository.save(user);
 
             LOGGER.info("Студент с ID: {} успешно обновлён", studentId);
             return findByIdStudentInfo(studentId);
