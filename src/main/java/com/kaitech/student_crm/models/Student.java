@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 @Data
@@ -33,5 +34,11 @@ public class Student {
     @ManyToMany(mappedBy = "students")
     private Set<Project> projects;
     private Integer point;
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<Archive> archives = new ArrayList<>();
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<Exam> exams = new ArrayList<>();
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<Notification> notifications;
 
 }
