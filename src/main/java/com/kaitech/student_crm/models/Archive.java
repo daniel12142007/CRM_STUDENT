@@ -20,6 +20,6 @@ public class Archive {
     @ManyToOne
     @JoinColumn(name = "student_id")
     private Student student;
-    @OneToMany(mappedBy = "archive", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "archive")
     private List<Notification> notifications;
 }

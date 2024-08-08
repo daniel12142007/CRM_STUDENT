@@ -12,16 +12,6 @@ import java.util.List;
 @Repository
 public interface ArchiveRepository extends JpaRepository<Archive,Long> {
 
-    @Query("""
-            SELECT new com.kaitech.student_crm.payload.response.ArchiveResponse(
-            a.id, 
-            a.dateUpdate,
-            a.newLevel, 
-            a.oldLevel, 
-            a.status,
-            a.student)
-            FROM Archive a
-            """)
-    List<ArchiveResponse> findAllResponses();
+
 
 }

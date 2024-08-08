@@ -34,11 +34,11 @@ public class Student {
     @ManyToMany(mappedBy = "students")
     private Set<Project> projects;
     private Integer point;
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "student")
     private List<Archive> archives = new ArrayList<>();
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "student")
     private List<Exam> exams = new ArrayList<>();
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "student")
     private List<Notification> notifications;
 
 }

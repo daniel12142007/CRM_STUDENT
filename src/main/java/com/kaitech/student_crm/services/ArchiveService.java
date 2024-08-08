@@ -17,6 +17,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ArchiveService {
-    private final ArchiveRepository repo;
+    private final ArchiveRepository archiveRepository;
 
 }
