@@ -345,6 +345,61 @@ public class StudentUserService {
         return findByIdStudentInfo(studentId);
     }
 
+    @Transactional
+    public StudentResponse assignLevelToStudent(Long studentId, Long levelId) {
+        try {
+            LOGGER.info("Присвоение уровня с ID {} студенту с ID {}", levelId, studentId);
+
+            Student student = studentUserRepository.findById(studentId)
+                    .orElseThrow(() -> {
+                        LOGGER.error("Студент с ID {} не найден", studentId);
+                        return new NotFoundException("Студент не найден");
+                    });
+
+            Level level = levelRepository.findById(levelId)
+                    .orElseThrow(() -> {
+                        LOGGER.error("Уровень с ID {} не найден", levelId);
+                        return new NotFoundException("Уровень не найден");
+                    });
+
+            student.setLevel(level);
+            Student updatedStudent = studentUserRepository.save(student);
+
+            Archive archive = new Archive();
+            archive.setStudent(student);
+            archive.setNewLevel(level.getTitle());
+            archive.setDateUpdate(LocalDate.now());
+            archive.setFirstName(student.getFirstName());
+            archive.setLastName(student.getLastName());
+            archive.setStatus(true);
+            archive.setImage(student.getImage());
+
+            archiveRepository.save(archive);
+            LOGGER.info("Архивная запись успешно создана для студента с ID: {}", studentId);
+
+            LevelResponse levelResponse = new LevelResponse(level.getId(), level.getTitle(), level.getDescription(), level.getPointFrom(), level.getPointTo());
+            return new StudentResponse(
+                    updatedStudent.getId(),
+                    updatedStudent.getImage(),
+                    updatedStudent.getFirstName(),
+                    updatedStudent.getLastName(),
+                    updatedStudent.getEmail(),
+                    updatedStudent.getPhoneNumber(),
+                    updatedStudent.getDirection().getName(),
+                    null,
+                    updatedStudent.getStatus(),
+                    levelResponse
+            );
+
+        } catch (NotFoundException e) {
+            LOGGER.error("Ошибка: {}", e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            LOGGER.error("Неизвестная ошибка при присвоении уровня студенту с ID: {}", studentId, e);
+            throw new RuntimeException("Произошла ошибка при присвоении уровня", e);
+        }
+    }
+
 
     @Transactional
     public StudentResponse updateLevel(Long studentId, Long newLevelId) {

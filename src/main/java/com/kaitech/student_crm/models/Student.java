@@ -40,8 +40,6 @@ public class Student {
     @OneToMany(mappedBy = "student")
     private List<Archive> archives = new ArrayList<>();
     @OneToMany(mappedBy = "student")
-    private List<Exam> exams = new ArrayList<>();
-    @OneToMany(mappedBy = "student")
     private List<Notification> notifications;
 
 }
