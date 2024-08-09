@@ -13,7 +13,7 @@ public class Exam {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private LocalDate dateStart;
-    private LocalDate datEnd;
+    private LocalDate dateEnd;
     private String newLevel;
     @ManyToOne
     @JoinColumn(name = "student_id")

@@ -2,13 +2,18 @@ package com.kaitech.student_crm.services;
 
 import com.kaitech.student_crm.exceptions.NotFoundException;
 import com.kaitech.student_crm.models.Archive;
+import com.kaitech.student_crm.models.Level;
+import com.kaitech.student_crm.models.Student;
 import com.kaitech.student_crm.payload.response.ArchiveResponse;
 import com.kaitech.student_crm.payload.response.MessageResponse;
 import com.kaitech.student_crm.repositories.ArchiveRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -48,4 +53,6 @@ public class ArchiveService {
         log.info("Archive с archiveId: {} успешно удален.", archiveId);
         return new MessageResponse("Successfully removed");
     }
+
+
 }

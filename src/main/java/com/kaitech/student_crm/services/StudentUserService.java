@@ -5,19 +5,14 @@ import com.kaitech.student_crm.dtos.StudentDTOForAll;
 import com.kaitech.student_crm.exceptions.EmailAlreadyExistsException;
 import com.kaitech.student_crm.exceptions.NotFoundException;
 import com.kaitech.student_crm.exceptions.UserExistException;
-import com.kaitech.student_crm.models.Direction;
-import com.kaitech.student_crm.models.Project;
-import com.kaitech.student_crm.models.Student;
-import com.kaitech.student_crm.models.User;
+import com.kaitech.student_crm.models.*;
 import com.kaitech.student_crm.models.enums.ERole;
 import com.kaitech.student_crm.models.enums.Status;
 import com.kaitech.student_crm.payload.request.StudentDataRequest;
 import com.kaitech.student_crm.payload.request.StudentRequest;
+import com.kaitech.student_crm.payload.response.LevelResponse;
 import com.kaitech.student_crm.payload.response.StudentResponse;
-import com.kaitech.student_crm.repositories.DirectionRepository;
-import com.kaitech.student_crm.repositories.ProjectRepository;
-import com.kaitech.student_crm.repositories.StudentUserRepository;
-import com.kaitech.student_crm.repositories.UserRepository;
+import com.kaitech.student_crm.repositories.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -45,17 +41,24 @@ public class StudentUserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ProjectRepository projectRepository;
+    private final ArchiveRepository archiveRepository;
+    private final LevelRepository levelRepository;
     @Value("${link}")
     private String link;
 
     @Autowired
-    public StudentUserService(StudentUserRepository studentUserRepository, DirectionRepository directionRepository, JavaMailSender javaMailSender, UserRepository userRepository, PasswordEncoder passwordEncoder, ProjectRepository projectRepository) {
+    public StudentUserService(StudentUserRepository studentUserRepository, DirectionRepository directionRepository,
+                              JavaMailSender javaMailSender, UserRepository userRepository,
+                              PasswordEncoder passwordEncoder, ProjectRepository projectRepository,
+                              ArchiveRepository archiveRepository,LevelRepository levelRepository) {
         this.studentUserRepository = studentUserRepository;
         this.directionRepository = directionRepository;
         this.javaMailSender = javaMailSender;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.projectRepository = projectRepository;
+        this.archiveRepository = archiveRepository;
+        this.levelRepository = levelRepository;
     }
 
     public StudentDTO createStudent(StudentDataRequest student,
@@ -341,4 +344,68 @@ public class StudentUserService {
         LOGGER.info("Возвращение информации о студенте с ID {}", studentId);
         return findByIdStudentInfo(studentId);
     }
+
+
+    @Transactional
+    public StudentResponse updateLevel(Long studentId, Long newLevelId) {
+        try {
+            LOGGER.info("Начинается обновление уровня для студента с ID: {}", studentId);
+
+            Student student = studentUserRepository.findById(studentId)
+                    .orElseThrow(() -> {
+                        LOGGER.error("Студент с ID {} не найден", studentId);
+                        return new NotFoundException("Студент не найден");
+                    });
+
+            Level newLevel = levelRepository.findById(newLevelId)
+                    .orElseThrow(() -> {
+                        LOGGER.error("Уровень с ID {} не найден", newLevelId);
+                        return new NotFoundException("Уровень не найден");
+                    });
+
+            Level oldLevel = student.getLevel();
+            LOGGER.info("Обновление уровня студента с ID {} с {} на {}", studentId, oldLevel != null ? oldLevel.getTitle() : "нет уровня", newLevel.getTitle());
+
+            student.setLevel(newLevel);
+
+            Archive archive = new Archive();
+            archive.setStudent(student);
+            archive.setNewLevel(newLevel.getTitle());
+            archive.setOldLevel(oldLevel != null ? oldLevel.getTitle() : null);
+            archive.setDateUpdate(LocalDate.now());
+            archive.setFirstName(student.getFirstName());
+            archive.setLastName(student.getLastName());
+            archive.setStatus(true);
+            archive.setImage(student.getImage());
+
+            archiveRepository.save(archive);
+            LOGGER.info("Архивная запись успешно создана для студента с ID: {}", studentId);
+
+            Student updatedStudent = studentUserRepository.save(student);
+            LOGGER.info("Уровень студента с ID {} успешно обновлен", studentId);
+
+            LevelResponse levelResponse = new LevelResponse(newLevel.getId(), newLevel.getTitle());
+            return new StudentResponse(
+                    updatedStudent.getId(),
+                    updatedStudent.getImage(),
+                    updatedStudent.getFirstName(),
+                    updatedStudent.getLastName(),
+                    updatedStudent.getEmail(),
+                    updatedStudent.getPhoneNumber(),
+                    updatedStudent.getDirection().getName(),
+                    updatedStudent.getStatus(),
+                    levelResponse
+            );
+
+        } catch (NotFoundException e) {
+            LOGGER.error("Ошибка: {}", e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            LOGGER.error("Неизвестная ошибка при обновлении уровня студента с ID: {}", studentId, e);
+            throw new RuntimeException("Произошла ошибка при обновлении уровня", e);
+        }
+    }
+
+
+
 }
