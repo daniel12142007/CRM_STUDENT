@@ -1,6 +1,4 @@
 package com.kaitech.student_crm.payload.response;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
@@ -10,5 +8,9 @@ public record ArchiveResponse(
         String newLevel,
         String oldLevel,
         Boolean status,
-        StudentResponse student
+        Long studentId,
+        String image,
+        String firstName,
+        String lastName,
+        String email
 ) {}
