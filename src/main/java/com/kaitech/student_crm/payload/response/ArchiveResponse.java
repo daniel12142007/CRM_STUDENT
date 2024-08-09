@@ -8,9 +8,9 @@ public record ArchiveResponse(
         String newLevel,
         String oldLevel,
         Boolean status,
-        Long studentId,
         String image,
         String firstName,
         String lastName,
         String email
-) {}
+) {
+}

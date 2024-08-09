@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,13 +21,11 @@ public interface ArchiveRepository extends JpaRepository<Archive, Long> {
             a.newLevel,
             a.oldLevel,
             a.status,
-            s.id,
-            s.image,
-            s.firstName,
-            s.lastName,
-            coalesce(s.email,'Account not found')
+            a.image,
+            a.firstName,
+            a.lastName,
+            coalesce((select s.email from Student s where s = a.student),'Account not found')
             )from Archive a
-            join a.student s
             order by a.id desc
             """)
     List<ArchiveResponse> findAllArchiveResponse();
@@ -38,13 +37,11 @@ public interface ArchiveRepository extends JpaRepository<Archive, Long> {
             a.newLevel,
             a.oldLevel,
             a.status,
-            s.id,
-            s.image,
-            s.firstName,
-            s.lastName,
-            coalesce(s.email,'Account not found')
+            a.image,
+            a.firstName,
+            a.lastName,
+            coalesce((select s.email from Student s where s = a.student),'Account not found')
             )from Archive a
-            join a.student s
             where a.id = :archiveId
             """)
     Optional<ArchiveResponse> findByIdArchiveResponse(@Param(value = "archiveId") Long archiveId);
@@ -56,11 +53,10 @@ public interface ArchiveRepository extends JpaRepository<Archive, Long> {
             a.newLevel,
             a.oldLevel,
             a.status,
-            s.id,
-            s.image,
-            s.firstName,
-            s.lastName,
-            coalesce(s.email,'Account not found')
+            a.image,
+            a.firstName,
+            a.lastName,
+            a.student.email
             )from Archive a
             join a.student s
             on s.id = :studentId

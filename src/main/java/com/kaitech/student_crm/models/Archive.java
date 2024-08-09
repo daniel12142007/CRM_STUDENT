@@ -22,4 +22,7 @@ public class Archive {
     private Student student;
     @OneToMany(mappedBy = "archive")
     private List<Notification> notifications;
+    private String image;
+    private String firstName;
+    private String lastName;
 }

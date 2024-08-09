@@ -36,6 +36,12 @@ values ('Daniel', 'Ahatdzhanov', 'ROLE_STUDENT', 'student@gmail.com',
        ('Admin', 'Admin', 'ROLE_ADMIN', 'admin@gmail.com',
         '$2a$10$HnbCS5GOhvpQYP8JjSPYhO.ID54WDfq8.nv99cp92MuGXOFVPU4S.', 0);
 -- password=stringst
--- добавляем пользователя для студента
-insert into student(image, first_name, last_name, email, phone_number, status, point, code, registered, direction_id, user_id)
-values ('image', 'Daniel', 'Ahatdzhanov', 'student@gmail.com', '+996 700 800 900', 'EMPLOYED', 100, 0, true, 5, 2)
+-- добавляем студента
+insert into student(image, first_name, last_name, email, phone_number, status, point, code, registered, direction_id,
+                    user_id)
+values ('image', 'Daniel', 'Ahatdzhanov', 'student@gmail.com', '+996 700 800 900', 'EMPLOYED', 100, 0, true, 5, 2);
+-- добавляем архив
+insert into archive(image, first_name, last_name, date_update, old_level, new_level, status, student_id)
+values ('image', 'Daniel', 'Ahatdazhanov', '2024-04-14', 'A1', 'D1', true, 1),
+       ('image', 'Daniel', 'Ahatdazhanov', '2024-04-14', 'A1', 'D1', false, 1),
+       ('image', 'Daniel', 'Ahatdazhanov', '2024-04-14', 'A1', 'D1', false, null);

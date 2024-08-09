@@ -18,24 +18,34 @@ public class ArchiveService {
     private final ArchiveRepository archiveRepository;
 
     public List<ArchiveResponse> findAllArchive() {
+        log.info("Получение всех ArchiveResponse.");
         return archiveRepository.findAllArchiveResponse();
     }
 
     public List<ArchiveResponse> findAllByStudentId(Long studentId) {
+        log.info("Получение всех ArchiveResponse по studentId: {}", studentId);
         return archiveRepository.findAllResponseByStudentId(studentId);
     }
 
     public ArchiveResponse findById(Long archiveId) {
-        return archiveRepository.findByIdArchiveResponse(archiveId).orElseThrow(
-                () -> new NotFoundException("Not found archive ID: " + archiveId)
-        );
+        log.info("Поиск ArchiveResponse по archiveId: {}", archiveId);
+        ArchiveResponse archiveResponse = archiveRepository.findByIdArchiveResponse(archiveId)
+                .orElseThrow(() -> {
+                    log.error("ArchiveResponse с archiveId: {} не найден.", archiveId);
+                    return new NotFoundException("Not found archive ID: " + archiveId);
+                });
+        log.info("Найден ArchiveResponse с archiveId: {}", archiveId);
+        return archiveResponse;
     }
 
     public MessageResponse deleteById(Long archiveId) {
-        Archive archive = archiveRepository.findById(archiveId).orElseThrow(
-                () -> new NotFoundException("Not found archive ID: " + archiveId)
-        );
+        log.info("Удаление Archive по archiveId: {}", archiveId);
+        Archive archive = archiveRepository.findById(archiveId).orElseThrow(() -> {
+            log.error("Archive с archiveId: {} не найден.", archiveId);
+            return new NotFoundException("Not found archive ID: " + archiveId);
+        });
         archiveRepository.delete(archive);
+        log.info("Archive с archiveId: {} успешно удален.", archiveId);
         return new MessageResponse("Successfully removed");
     }
 }
