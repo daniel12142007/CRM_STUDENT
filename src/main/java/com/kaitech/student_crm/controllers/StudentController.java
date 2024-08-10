@@ -126,14 +126,4 @@ public class StudentController {
                                                 @PathVariable Long levelId) {
         return studentUserService.updateLevel(studentId,levelId);
     }
-
-    @PutMapping("/{id}/update-level")
-    @Operation(summary = "Метод для изменения уровня студента",
-            description = "Доступен для ROLE_ADMIN ")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public StudentResponse updateStudentLevel(
-            @PathVariable Long id,
-            @RequestParam Long newLevel) {
-        return  studentUserService.updateLevel(id, newLevel);
-    }
 }
