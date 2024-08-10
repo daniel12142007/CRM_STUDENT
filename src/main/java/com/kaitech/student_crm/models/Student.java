@@ -41,5 +41,4 @@ public class Student {
     private List<Archive> archives = new ArrayList<>();
     @OneToMany(mappedBy = "student")
     private List<Notification> notifications;
-
 }

@@ -12,5 +12,4 @@ public record LevelResponse(Long id,
     public LevelResponse(Long id, String title) {
         this(id, title, null, null, null, null);
     }
-
 }

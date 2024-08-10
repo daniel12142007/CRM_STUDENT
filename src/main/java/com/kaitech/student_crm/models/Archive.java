@@ -13,6 +13,9 @@ public class Archive {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String image;
+    private String firstName;
+    private String lastName;
     private LocalDate dateUpdate;
     private String newLevel;
     private String oldLevel;
@@ -22,7 +25,4 @@ public class Archive {
     private Student student;
     @OneToMany(mappedBy = "archive")
     private List<Notification> notifications;
-    private String image;
-    private String firstName;
-    private String lastName;
 }

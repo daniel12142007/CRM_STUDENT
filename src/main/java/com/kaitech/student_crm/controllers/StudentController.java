@@ -124,7 +124,7 @@ public class StudentController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public StudentResponse assignLevelToStudent(@PathVariable Long studentId,
                                                 @PathVariable Long levelId) {
-        return studentUserService.assignLevelToStudent(studentId,levelId);
+        return studentUserService.updateLevel(studentId,levelId);
     }
 
     @PutMapping("/{id}/update-level")

@@ -53,6 +53,4 @@ public class ArchiveService {
         log.info("Archive с archiveId: {} успешно удален.", archiveId);
         return new MessageResponse("Successfully removed");
     }
-
-
 }
