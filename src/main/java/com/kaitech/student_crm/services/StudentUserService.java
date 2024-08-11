@@ -391,4 +391,43 @@ public class StudentUserService {
             throw new RuntimeException("Произошла ошибка при обновлении уровня", e);
         }
     }
+
+    public List<StudentResponse> filterStudentsByLevel(Long levelId) {
+        List<StudentResponse> studentResponses;
+        try {
+            LOGGER.info("Начало фильтрации студентов по уровню с id: {}", levelId);
+            List<Student> students = studentUserRepository.findByLevelId(levelId);
+            studentResponses = convertToStudentResponse(students);
+            LOGGER.info("Фильтрация студентов завершена успешно. Найдено студентов: {}", studentResponses.size());
+        } catch (Exception e) {
+            LOGGER.error("Ошибка при фильтрации студентов по уровню с id: {}", levelId, e);
+            throw new RuntimeException("Ошибка при фильтрации студентов", e);
+        }
+        return studentResponses;
+    }
+
+    private List<StudentResponse> convertToStudentResponse(List<Student> students) {
+        List<StudentResponse> studentResponses = new ArrayList<>();
+        for (Student student : students) {
+            LevelResponse levelResponse = new LevelResponse(
+                    student.getLevel().getId(),
+                    student.getLevel().getTitle(),
+                    student.getLevel().getDescription(),
+                    student.getLevel().getPointFrom(),
+                    student.getLevel().getPointTo()
+            );
+            StudentResponse studentResponse = new StudentResponse(
+                    student.getId(),
+                    student.getImage(),
+                    student.getFirstName(),
+                    student.getLastName(),
+                    student.getEmail(),
+                    student.getPhoneNumber(),
+                    student.getStatus(),
+                    levelResponse
+            );
+            studentResponses.add(studentResponse);
+        }
+        return studentResponses;
+    }
 }

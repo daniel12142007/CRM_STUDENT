@@ -5,7 +5,6 @@ import com.kaitech.student_crm.dtos.StudentDTOForAll;
 import com.kaitech.student_crm.models.Student;
 import com.kaitech.student_crm.models.enums.ERole;
 import com.kaitech.student_crm.payload.response.StudentResponse;
-import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -155,4 +154,6 @@ public interface StudentUserRepository extends JpaRepository<Student, Long> {
             """)
     String findLevelIfNull(@Param("point") Integer point, @Param("studentId") Long studentId);
 
+    List<Student> findByLevelId(Long levelId);
 }
+

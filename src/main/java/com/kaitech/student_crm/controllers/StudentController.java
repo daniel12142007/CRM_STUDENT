@@ -126,4 +126,10 @@ public class StudentController {
                                                 @PathVariable Long levelId) {
         return studentUserService.updateLevel(studentId,levelId);
     }
+
+    @GetMapping("/level/{levelId}")
+    @Operation(summary = "Фильтррация студента по уровню")
+    public List<StudentResponse> getStudentsByLevel(@PathVariable Long levelId) {
+        return studentUserService.filterStudentsByLevel(levelId);
+    }
 }
