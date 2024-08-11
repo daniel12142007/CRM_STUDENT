@@ -41,35 +41,4 @@ public class LevelController {
         return levelService.findAll();
     }
 
-    @PostMapping("create/level")
-    @Operation(summary = "Сохраняет level, его может использовать только ROLE_ADMIN",
-            description = """
-                    pointFrom должен быть меньше чем pointTo,
-                    pointFrom и pointTo не должны пересекаться с другими баллами уровней,
-                    title должен быть уникален.           \s
-                    """)
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<LevelResponse> create(@RequestBody LevelRequest request) {
-        return ResponseEntity.ok(levelService.createLevel(request));
-    }
-
-    @PutMapping("update/level/{levelId}")
-    @Operation(summary = "Обновляет level, его может использовать только ROLE_ADMIN",
-            description = """
-                    pointFrom должен быть меньше чем pointTo,
-                    pointFrom и pointTo не должны пересекаться с другими баллами уровней,
-                    title должен быть уникален.           \s
-                    """)
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> update(@RequestBody LevelRequest request,
-                                    @PathVariable Long levelId) {
-        return ResponseEntity.ok(levelService.updateLevel(request, levelId));
-    }
-
-    @DeleteMapping("delete/by/{levelId}")
-    @Operation(summary = "Удаляет level, его может использовать только ROLE_ADMIN")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<LevelResponse>> deleteById(@PathVariable Long levelId) {
-        return ResponseEntity.ok(levelService.deleteById(levelId));
-    }
 }

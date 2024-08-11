@@ -117,4 +117,13 @@ public class StudentController {
                                       @RequestParam @Valid @Size(min = 8) String password) {
         return studentUserService.registerStudent(email, code, password);
     }
+
+    @PutMapping("/{studentId}/assign-level/{levelId}")
+    @Operation(summary = "Метод для присвоения уровня студенту",
+            description = "Доступен для ROLE_ADMIN ")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public StudentResponse assignLevelToStudent(@PathVariable Long studentId,
+                                                @PathVariable Long levelId) {
+        return studentUserService.updateLevel(studentId,levelId);
+    }
 }

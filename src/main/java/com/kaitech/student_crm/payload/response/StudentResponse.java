@@ -22,5 +22,8 @@ public record StudentResponse(Long id,
     public StudentResponse(Long id, String image, String firstName, String lastName, String email, String phoneNumber, String direction, Status status) {
         this(id, image, firstName, lastName, email, phoneNumber, direction, null, status, null);
     }
-
+    public StudentResponse(Long id, String image, String firstName, String lastName, String email,
+                           String phoneNumber, String direction, Status status,LevelResponse level) {
+        this(id, image, firstName, lastName, email, phoneNumber, direction, null, status, level);
+    }
 }

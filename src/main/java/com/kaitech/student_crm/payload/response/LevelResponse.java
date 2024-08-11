@@ -9,4 +9,7 @@ public record LevelResponse(Long id,
     public LevelResponse(Long id, String title, String description, Integer pointFrom, Integer pointTo) {
         this(id, title, description, pointFrom, pointTo, null);
     }
+    public LevelResponse(Long id, String title) {
+        this(id, title, null, null, null, null);
+    }
 }
