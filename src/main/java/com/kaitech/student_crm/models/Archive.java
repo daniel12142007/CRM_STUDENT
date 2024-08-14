@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.List;
 
 @Data
 @Entity
@@ -25,12 +24,33 @@ public class Archive {
     private LocalDate dateUpdate;
     private String newLevel;
     private String oldLevel;
-    private Integer oldPoint;
     private Integer newPoint;
-    private Boolean status;
+    private Integer oldPoint;
     @ManyToOne
     @JoinColumn(name = "student_id")
     private Student student;
-    @OneToMany(mappedBy = "archive")
-    private List<Notification> notifications;
+
+    public Archive(Student student, Level level) {
+        this.student = student;
+        this.image = student.getImage();
+        this.firstName = student.getFirstName();
+        this.lastName = student.getLastName();
+        this.newLevel = level.getTitle();
+        this.oldLevel = level.getTitle();
+        this.newPoint = student.getPoint();
+        this.oldPoint = student.getPoint();
+        this.dateUpdate = LocalDate.now();
+    }
+
+    public Archive(Student newStudent, Integer oldPoint, Level newLevel, Level oldLevel) {
+        this.student = newStudent;
+        this.image = newStudent.getImage();
+        this.firstName = newStudent.getFirstName();
+        this.lastName = newStudent.getLastName();
+        this.newLevel = newLevel.getTitle();
+        this.oldLevel = oldLevel.getTitle();
+        this.newPoint = newStudent.getPoint();
+        this.oldPoint = oldPoint;
+        this.dateUpdate = LocalDate.now();
+    }
 }
