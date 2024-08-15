@@ -300,6 +300,7 @@ public class StudentUserService {
         }
 
         final Integer oldPoint = student.getPoint();
+
         Archive archive;
 
         if (!level.getTitle().equals("Not at the level yet")) {
@@ -323,13 +324,25 @@ public class StudentUserService {
             archive = new Archive(student, oldPoint, level, oldLevel);
             LOGGER.debug("Создан архив с изменением уровня: {}", archive);
         }
+
         studentUserRepository.save(student);
         Notification notification = Notification.builder()
                 .student(student)
                 .date(LocalDate.now())
-                .message("Ваш уровень был изменен с A1 на D2. Ваш старый балл — 11, а новый — 100.")
+                .message("Ваш уровень был изменен с " + archive.getOldLevel() + " на " + archive.getNewLevel() + ". Ваш старый балл — " + oldPoint + ", а новый — " + point)
                 .build();
         LOGGER.info("Сохранен студент с ID: {}", studentId);
+
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(student.getEmail());
+            message.setSubject("Изменение уровня");
+            message.setText("Ваш уровень был изменен с " + archive.getOldLevel() + " на " + archive.getNewLevel() + ". Ваш старый балл — " + oldPoint + ", а новый — " + point);
+            javaMailSender.send(message);
+        } catch (MailException e) {
+            LOGGER.error("Ошибка при отправке письма на email: {}", student.getEmail());
+            throw new RuntimeException("Please enter a valid email address.");
+        }
 
         archiveRepository.save(archive);
         notificationRepository.save(notification);
