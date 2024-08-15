@@ -13,6 +13,7 @@ import com.kaitech.student_crm.payload.request.StudentRequest;
 import com.kaitech.student_crm.payload.response.LevelResponse;
 import com.kaitech.student_crm.payload.response.StudentResponse;
 import com.kaitech.student_crm.repositories.*;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +46,7 @@ public class StudentUserService {
     private final ProjectRepository projectRepository;
     private final ArchiveRepository archiveRepository;
     private final LevelRepository levelRepository;
+    private final NotificationRepository notificationRepository;
     @Value("${link}")
     private String link;
 
@@ -277,7 +279,7 @@ public class StudentUserService {
     }
 
     public StudentDTO addPointForStudent(Long studentId, Integer point) {
-        LOGGER.info("Добавление баллов студенту с ID: {}", studentId);
+        LOGGER.info("Запрос на добавление баллов студенту с ID: {} и баллами: {}", studentId, point);
 
         Student student = studentUserRepository.findById(studentId).orElseThrow(
                 () -> {
@@ -285,11 +287,71 @@ public class StudentUserService {
                     return new NotFoundException("Not found student ID: " + studentId);
                 });
 
+        LOGGER.debug("Найден студент: {}", student);
+
+        Level level = levelRepository.findBetweenPointFrontAndPointTo(point).orElse(
+                levelRepository.findLevelIfNull(point)
+        );
+        if (level == null) {
+            level = new Level("Not at the level yet", 0, 0, "The student has no level");
+            LOGGER.warn("Не удалось найти уровень для баллов: {}. Установлен уровень по умолчанию.", point);
+        } else {
+            LOGGER.debug("Найден уровень: {}", level);
+        }
+
+        final Integer oldPoint = student.getPoint();
+
+        Archive archive;
+
+        if (!level.getTitle().equals("Not at the level yet")) {
+            student.setLevel(level);
+            LOGGER.info("Обновлен уровень студента с ID: {} на {}", studentId, level);
+        }
         student.setPoint(point);
+        LOGGER.info("Установлены новые баллы: {} для студента с ID: {}", point, studentId);
+
+        if (student.getLevel() == null) {
+            archive = new Archive(student, level);
+            LOGGER.debug("Создан архив для студента: {}", archive);
+        } else {
+            Level oldLevel = levelRepository.findBetweenPointFrontAndPointTo(oldPoint).orElse(
+                    levelRepository.findLevelIfNull(oldPoint)
+            );
+            if (oldLevel == null) {
+                oldLevel = new Level("Not at the level yet", 0, 0, "The student has no level");
+                LOGGER.warn("Не удалось найти старый уровень для баллов: {}. Установлен уровень по умолчанию.", oldPoint);
+            }
+            archive = new Archive(student, oldPoint, level, oldLevel);
+            LOGGER.debug("Создан архив с изменением уровня: {}", archive);
+        }
+
         studentUserRepository.save(student);
-        LOGGER.info("Баллы добавлены студенту с ID: {}", studentId);
+        Notification notification = Notification.builder()
+                .student(student)
+                .date(LocalDate.now())
+                .message("Ваш уровень был изменен с " + archive.getOldLevel() + " на " + archive.getNewLevel() + ". Ваш старый балл — " + oldPoint + ", а новый — " + point)
+                .build();
+        LOGGER.info("Сохранен студент с ID: {}", studentId);
+
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(student.getEmail());
+            message.setSubject("Изменение уровня");
+            message.setText("Ваш уровень был изменен с " + archive.getOldLevel() + " на " + archive.getNewLevel() + ". Ваш старый балл — " + oldPoint + ", а новый — " + point);
+            javaMailSender.send(message);
+        } catch (MailException e) {
+            LOGGER.error("Ошибка при отправке письма на email: {}", student.getEmail());
+            throw new RuntimeException("Please enter a valid email address.");
+        }
+
+        archiveRepository.save(archive);
+        notificationRepository.save(notification);
+        LOGGER.info("Сохранен архив и уведомление для студента с ID: {}", studentId);
+
+        LOGGER.info("Баллы успешно добавлены студенту с ID: {}", studentId);
         return findByIdStudentInfo(studentId);
     }
+
 
     public StudentDTO findByIdStudentInfo(Long studentId) {
         LOGGER.info("Поиск информации о студенте с ID: {}", studentId);
@@ -361,7 +423,6 @@ public class StudentUserService {
             archive.setDateUpdate(LocalDate.now());
             archive.setFirstName(student.getFirstName());
             archive.setLastName(student.getLastName());
-            archive.setStatus(true);
             archive.setImage(student.getImage());
 
             archiveRepository.save(archive);

@@ -57,4 +57,15 @@ public interface LevelRepository extends JpaRepository<Level, Long> {
     boolean existsByTitle(String title);
 
     boolean existsByTitleAndIdNot(String title, Long levelId);
+
+    @Query("select l from Level l where :point between l.pointFrom and (l.pointTo - 1)")
+    Optional<Level> findBetweenPointFrontAndPointTo(@Param("point") Integer point);
+
+    @Query("""
+            select coalesce(
+            case when :point >= (select max(l1.pointTo) from Level l1)
+            then l2 else null end,null
+            ) from Level l2 where l2.pointTo = (select max(l3.pointTo) from Level l3)
+            """)
+    Level findLevelIfNull(@Param(value = "point") Integer point);
 }

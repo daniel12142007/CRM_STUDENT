@@ -20,7 +20,8 @@ public interface ArchiveRepository extends JpaRepository<Archive, Long> {
             a.dateUpdate,
             a.newLevel,
             a.oldLevel,
-            a.status,
+            a.oldPoint,
+            a.newPoint,
             a.image,
             a.firstName,
             a.lastName,
@@ -36,7 +37,8 @@ public interface ArchiveRepository extends JpaRepository<Archive, Long> {
             a.dateUpdate,
             a.newLevel,
             a.oldLevel,
-            a.status,
+            a.oldPoint,
+            a.newPoint,
             a.image,
             a.firstName,
             a.lastName,
@@ -52,11 +54,12 @@ public interface ArchiveRepository extends JpaRepository<Archive, Long> {
             a.dateUpdate,
             a.newLevel,
             a.oldLevel,
-            a.status,
+            a.oldPoint,
+            a.newPoint,
             a.image,
             a.firstName,
             a.lastName,
-            a.student.email
+            s.email
             )from Archive a
             join a.student s
             on s.id = :studentId
