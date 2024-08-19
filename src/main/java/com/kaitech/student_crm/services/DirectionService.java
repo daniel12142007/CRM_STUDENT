@@ -124,4 +124,54 @@ public class DirectionService {
         LOGGER.info("Direction с id: {} успешно найден", id);
         return response;
     }
+
+    public DirectionResponse updateDirection(Long id, DirectionCreateRequest directionCreateRequest) {
+        try {
+            LOGGER.info("Обновление Direction с ID: {}", id);
+
+            if (directionCreateRequest.getName() == null || directionCreateRequest.getName().isEmpty()) {
+                LOGGER.error("Поле имя не должно быть пустым");
+                throw new IllegalArgumentException("Поле имя не должно быть пустым");
+            }
+            if (directionCreateRequest.getDescription() == null || directionCreateRequest.getDescription().isEmpty()) {
+                LOGGER.error("Описание не должно быть пустым");
+                throw new IllegalArgumentException("Описание не должно быть пустым");
+            }
+
+            Direction existingDirection = directionRepository.findById(id)
+                    .orElseThrow(() -> new NotFoundException("Direction с ID: " + id + " не найден"));
+
+            if (directionRepository.existsByNameAndIdNot(directionCreateRequest.getName(), id)) {
+                LOGGER.error("Направление с именем {} уже существует", directionCreateRequest.getName());
+                throw new IllegalArgumentException("Направление с таким именем уже существует");
+            }
+
+            existingDirection.setName(directionCreateRequest.getName());
+            existingDirection.setDescription(directionCreateRequest.getDescription());
+
+            Direction updatedDirection = directionRepository.save(existingDirection);
+            LOGGER.info("Direction с ID: {} успешно обновлён", updatedDirection.getId());
+
+            DirectionResponse responseDTO = new DirectionResponse();
+            responseDTO.setId(updatedDirection.getId());
+            responseDTO.setName(updatedDirection.getName());
+            responseDTO.setDescription(updatedDirection.getDescription());
+
+            return responseDTO;
+
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("Ошибка валидации данных: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        } catch (NotFoundException e) {
+            LOGGER.error("Ошибка поиска Direction: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+        } catch (DataAccessException e) {
+            LOGGER.error("Ошибка базы данных при обновлении Direction: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Произошла ошибка базы данных", e);
+        } catch (Exception e) {
+            LOGGER.error("Неожиданная ошибка при обновлении Direction: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Произошла неожиданная ошибка", e);
+        }
+    }
+
 }

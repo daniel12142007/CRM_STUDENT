@@ -69,4 +69,12 @@ public class DirectionController {
         directionService.deleteDirection(id);
         return ResponseEntity.ok(new MessageResponse("Direction was deleted"));
     }
+
+    @PutMapping("/update/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Operation(summary = "Обновление направления")
+    public DirectionResponse updateDirection(@PathVariable Long id,
+                                             @RequestBody @Valid DirectionCreateRequest directionRequest){
+        return directionService.updateDirection(id,directionRequest);
+    }
 }

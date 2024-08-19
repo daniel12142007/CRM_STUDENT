@@ -40,4 +40,6 @@ public interface DirectionRepository extends JpaRepository<Direction, Long> {
             "(d.id, d.name, d.description) " +
             "FROM Direction d")
     List<DirectionResponse> findAllDirections();
+
+    boolean existsByNameAndIdNot(String name, Long id);
 }
