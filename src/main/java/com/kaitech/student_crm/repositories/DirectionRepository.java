@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DirectionRepository extends JpaRepository<Direction, Long> {
@@ -42,4 +43,6 @@ public interface DirectionRepository extends JpaRepository<Direction, Long> {
     List<DirectionResponse> findAllDirections();
 
     boolean existsByNameAndIdNot(String name, Long id);
+
+    Optional<Direction> findByName(String directionName);
 }
