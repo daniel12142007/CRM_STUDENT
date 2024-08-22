@@ -179,13 +179,13 @@ public class ProjectService {
 
     public void deleteProject(Long id) {
         LOGGER.info("Удаление проекта с id: {}", id);
-        ProjectResponse projectResponse = getProjectById(id);
+        Project project = projectRepository.findById(id).orElseThrow(null);
 
-        if (projectResponse == null) {
+        if (project == null) {
             LOGGER.error("Проект с id: {} не найден", id);
             throw new NotFoundException("Project with id " + id + " not found");
         }
-        projectRepository.delete(convertToProject(projectResponse));
+        projectRepository.delete(project);
         LOGGER.info("Проект с id: {} успешно удален", id);
     }
 
