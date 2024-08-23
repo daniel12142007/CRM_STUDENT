@@ -26,8 +26,10 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -47,12 +49,16 @@ public class StudentUserService {
     private final ArchiveRepository archiveRepository;
     private final LevelRepository levelRepository;
     private final NotificationRepository notificationRepository;
+    private final S3FileService s3FileService;
     @Value("${link}")
     private String link;
+    @Value("${s3.viewImage}")
+    private String linkViewImage;
 
     public StudentDTO createStudent(StudentDataRequest student,
                                     Status status,
-                                    Long directionId) {
+                                    Long directionId,
+                                    MultipartFile image) {
         LOGGER.info("Попытка создания нового студента с email: {}", student.getEmail());
 
         if (directionRepository.findById(directionId).isEmpty()) {
@@ -70,7 +76,12 @@ public class StudentUserService {
         newStudent.setLastName(student.getFirstname());
         newStudent.setFirstName(student.getLastname());
         newStudent.setCode(randomCode);
-        newStudent.setImage(student.getImage());
+        try {
+            newStudent.setImage(linkViewImage + s3FileService.upload(image));
+            LOGGER.info("Изображение успешно сохранено");
+        } catch (IOException ignore) {
+            LOGGER.error("Не удалось сохранить изображние");
+        }
         newStudent.setStatus(status);
         newStudent.setEmail(student.getEmail());
         newStudent.setDirection(directionRepository.findById(directionId).get());
@@ -125,7 +136,6 @@ public class StudentUserService {
             user.setEmail(request.email());
             user.setFirstname(request.firstName());
             user.setLastname(request.lastName());
-            student.setImage(request.image());
             student.setFirstName(request.firstName());
             student.setLastName(request.lastName());
             student.setEmail(request.email());
@@ -490,5 +500,40 @@ public class StudentUserService {
             studentResponses.add(studentResponse);
         }
         return studentResponses;
+    }
+
+    public StudentDTO updateImage(Long studentId,
+                                  String email,
+                                  MultipartFile image) {
+
+        LOGGER.info("Попытка обновить изображение студента. ID студента: {}, Email пользователя: {}", studentId, email);
+        Student student = studentUserRepository.findById(studentId).orElseThrow(
+                () -> {
+                    LOGGER.error("Студент с ID {} не найден ", studentId);
+                    return new NotFoundException("Not found student ID : " + studentId);
+                }
+        );
+        User user = userRepository.findUserByEmail(email).orElseThrow(
+                () -> {
+                    LOGGER.error("Пользователь с email {} не найден ", email);
+                    return new NotFoundException("Not found user email : " + email);
+                }
+        );
+        try {
+            student.setImage(linkViewImage + s3FileService.upload(image));
+            LOGGER.info("Изображение успешно обновлено");
+        } catch (IOException ignore) {
+            LOGGER.error("Не удалось обновить изображние");
+        }
+        if (user.getRole().equals(ERole.ROLE_ADMIN) || student.getEmail().equals(email)) {
+            LOGGER.info("Пользователь имеет права для изменения изображения или является владельцем аккаунта. ");
+            studentUserRepository.save(student);
+            LOGGER.info("Изображение студента с ID {} успешно обновлено", studentId);
+        } else {
+            LOGGER.warn("Попытка изменения изображения студента с ID {} от пользователя с Email {} без достаточных прав", studentId, email);
+            throw new AccessDeniedException("You do not have access to change the student's photo, you must be an admin or the owner of this account");
+        }
+        LOGGER.info("Возвращение информации о студенте с ID {}", studentId);
+        return findByIdStudentInfo(studentId);
     }
 }
