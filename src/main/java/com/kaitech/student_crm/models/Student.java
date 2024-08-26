@@ -1,9 +1,7 @@
 package com.kaitech.student_crm.models;
 
 import com.kaitech.student_crm.models.enums.Status;
-import lombok.Data;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
