@@ -10,6 +10,7 @@ import com.kaitech.student_crm.models.enums.ERole;
 import com.kaitech.student_crm.models.enums.Status;
 import com.kaitech.student_crm.payload.request.StudentDataRequest;
 import com.kaitech.student_crm.payload.request.StudentRequest;
+import com.kaitech.student_crm.payload.response.DirectionResponse;
 import com.kaitech.student_crm.payload.response.LevelResponse;
 import com.kaitech.student_crm.payload.response.StudentResponse;
 import com.kaitech.student_crm.repositories.*;
@@ -501,6 +502,37 @@ public class StudentUserService {
         }
         return studentResponses;
     }
+
+    public List<StudentResponse> filterByDirection(String directionName) {
+        LOGGER.info("Фильтрация студентов по направлению: {}", directionName);
+
+        Direction direction = directionRepository.findByName(directionName)
+                .orElseThrow(() -> new NotFoundException("Направление с именем: " + directionName + " не найден"));
+
+        List<Student> students = studentUserRepository.findByDirection(direction);
+
+        List<StudentResponse> studentResponses = convertToStudentResponse(students);
+
+        LOGGER.info("Найдено {} студентов для направления: {}", studentResponses.size(), directionName);
+        return studentResponses;
+    }
+
+    public List<StudentResponse> filterByProject(Long projectId) {
+        LOGGER.info("Фильтрация студента по проекту: {}", projectId);
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new NotFoundException("Проект с ID: " + projectId + " не найден"));
+
+        List<Student> students = studentUserRepository.findByProjects(project);
+
+        if (students.isEmpty()) {
+            LOGGER.warn("Не найдено ни одного студента для  проекта с ID: {}", projectId);
+            throw new NotFoundException("Для указанного проекта не найдено ни одного студента");
+        }
+
+        return convertToStudentResponse(students);
+    }
+
 
     public StudentDTO updateImage(Long studentId,
                                   String email,

@@ -8,9 +8,11 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DirectionRepository extends JpaRepository<Direction, Long> {
+
     @Query("""
             select new com.kaitech.student_crm.payload.response.DirectionResponse(
             d.id,
@@ -20,8 +22,7 @@ public interface DirectionRepository extends JpaRepository<Direction, Long> {
             from Direction d
             order by d.id
             """)
-    List<DirectionResponse> findAllDirectorResponse();
-
+    List<DirectionResponse> findAllDirections();
 
     @Query("""
             select new com.kaitech.student_crm.payload.response.DirectionResponse(
@@ -31,15 +32,14 @@ public interface DirectionRepository extends JpaRepository<Direction, Long> {
             from Direction d
             where d.id = :directorId
             """)
-    DirectionResponse findByIdDirectorResponse(@Param(value = "directorId") Long directorId);
+    DirectionResponse findByIdDirectorResponse(@Param("directorId") Long directorId);
 
     boolean existsByName(String name);
 
 
-    @Query("SELECT new com.kaitech.student_crm.payload.response.DirectionResponse" +
-            "(d.id, d.name, d.description) " +
-            "FROM Direction d")
-    List<DirectionResponse> findAllDirections();
 
     boolean existsByNameAndIdNot(String name, Long id);
+
+    Optional<Direction> findByName(String directionName);
+
 }

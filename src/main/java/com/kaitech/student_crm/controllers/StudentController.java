@@ -1,21 +1,16 @@
 package com.kaitech.student_crm.controllers;
 
-import com.kaitech.student_crm.annotations.ValidEmail;
 import com.kaitech.student_crm.dtos.StudentDTO;
 import com.kaitech.student_crm.dtos.StudentDTOForAll;
 import com.kaitech.student_crm.exceptions.EmailAlreadyExistsException;
-import com.kaitech.student_crm.models.Student;
 import com.kaitech.student_crm.models.enums.Status;
 import com.kaitech.student_crm.payload.request.StudentDataRequest;
 import com.kaitech.student_crm.payload.request.StudentRequest;
 import com.kaitech.student_crm.payload.response.MessageResponse;
 import com.kaitech.student_crm.payload.response.StudentResponse;
 import com.kaitech.student_crm.services.StudentUserService;
-import com.kaitech.student_crm.validations.ResponseErrorValidation;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -82,7 +77,6 @@ public class StudentController {
         return studentUserService.createStudent(studentDataRequest, status, directionId, image);
     }
 
-
     @DeleteMapping("/{id}/delete")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @Operation(summary = "Удаление студента по идентификатору")
@@ -145,7 +139,7 @@ public class StudentController {
         return studentUserService.updateLevel(studentId, levelId);
     }
 
-    @GetMapping("/students/{levelId}")
+    @GetMapping("/students/level/{levelId}")
     @Operation(summary = "Фильтррация студента по уровню")
     public List<StudentResponse> getStudentsByLevel(@PathVariable Long levelId) {
         return studentUserService.filterStudentsByLevel(levelId);
@@ -161,5 +155,17 @@ public class StudentController {
                 studentId,
                 SecurityContextHolder.getContext().getAuthentication().getName(),
                 image);
+    }
+
+    @GetMapping("/students/direction/{directionName}")
+    @Operation(summary = "Фильтррация студента по направлению")
+    public List<StudentResponse> getStudentByDirection(@PathVariable String directionName){
+       return studentUserService.filterByDirection(directionName);
+    }
+
+    @GetMapping("/students/project/{projectId}")
+    @Operation(summary = "Фильтррация студента по проекту")
+    public List<StudentResponse> getStudentsByProjectId(@PathVariable Long projectId) {
+        return studentUserService.filterByProject(projectId);
     }
 }
