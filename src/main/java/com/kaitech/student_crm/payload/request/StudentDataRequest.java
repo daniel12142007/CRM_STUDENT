@@ -8,8 +8,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 @Data
 public class StudentDataRequest {
-    @NotEmpty(message = "Please enter student's image")
-    private String image;
     @Email(message = "It should have email format")
     @NotBlank(message = "Student email is required")
     @ValidEmail
