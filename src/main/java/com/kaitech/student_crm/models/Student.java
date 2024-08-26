@@ -1,14 +1,15 @@
 package com.kaitech.student_crm.models;
 
 import com.kaitech.student_crm.models.enums.Status;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-@Data
+@Setter
+@Getter
 @Entity
 public class Student {
     @Id
