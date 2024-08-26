@@ -127,9 +127,21 @@ public class StudentController {
         return studentUserService.updateLevel(studentId,levelId);
     }
 
-    @GetMapping("/students/{levelId}")
+    @GetMapping("/students/level/{levelId}")
     @Operation(summary = "Фильтррация студента по уровню")
     public List<StudentResponse> getStudentsByLevel(@PathVariable Long levelId) {
         return studentUserService.filterStudentsByLevel(levelId);
+    }
+
+    @GetMapping("/students/direction/{directionName}")
+    @Operation(summary = "Фильтррация студента по направлению")
+    public List<StudentResponse> getStudentByDirection(@PathVariable String directionName){
+       return studentUserService.filterByDirection(directionName);
+    }
+
+    @GetMapping("/students/project/{projectId}")
+    @Operation(summary = "Фильтррация студента по проекту")
+    public List<StudentResponse> getStudentsByProjectId(@PathVariable Long projectId) {
+        return studentUserService.filterByProject(projectId);
     }
 }

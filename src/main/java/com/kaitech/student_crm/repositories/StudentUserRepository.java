@@ -2,8 +2,11 @@ package com.kaitech.student_crm.repositories;
 
 import com.kaitech.student_crm.dtos.StudentDTO;
 import com.kaitech.student_crm.dtos.StudentDTOForAll;
+import com.kaitech.student_crm.models.Direction;
+import com.kaitech.student_crm.models.Project;
 import com.kaitech.student_crm.models.Student;
 import com.kaitech.student_crm.models.enums.ERole;
+import com.kaitech.student_crm.payload.response.DirectionResponse;
 import com.kaitech.student_crm.payload.response.StudentResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 
 @Repository
@@ -155,5 +159,9 @@ public interface StudentUserRepository extends JpaRepository<Student, Long> {
     String findLevelIfNull(@Param("point") Integer point, @Param("studentId") Long studentId);
 
     List<Student> findByLevelId(Long levelId);
+
+    List<Student> findByDirection(Direction direction);
+
+    List<Student> findByProjects(Project projects);
 }
 
