@@ -82,4 +82,12 @@ public class ProjectController {
                                           @RequestParam List<Long> studentIds) {
         return projectService.saveAllStudentInProject(projectId, studentIds);
     }
+
+    @PostMapping("adds/students/{projectId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Operation(summary = "Добавляет одновременно множество студентов в проект")
+    public ProjectResponse saveAllStudentPost(@PathVariable Long projectId,
+                                              @RequestParam List<Long> studentIds) {
+        return projectService.saveAllStudentInProject(projectId, studentIds);
+    }
 }
