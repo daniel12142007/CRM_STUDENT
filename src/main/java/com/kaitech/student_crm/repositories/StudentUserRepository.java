@@ -163,5 +163,37 @@ public interface StudentUserRepository extends JpaRepository<Student, Long> {
     List<Student> findByDirection(Direction direction);
 
     List<Student> findByProjects(Project projects);
+
+    @Query("""
+           select new com.kaitech.student_crm.payload.response.StudentResponse(
+           s.id,
+           s.image,
+           s.firstName,
+           s.lastName,
+           s.email,
+           s.phoneNumber,
+           s.direction.name,
+           s.status
+           ) 
+           from Student s
+           where lower(s.firstName) like lower(concat('%', :firstName, '%'))
+           """)
+    List<StudentResponse> findStudentByName(@Param("firstName") String name);
+
+    @Query("""
+           select new com.kaitech.student_crm.payload.response.StudentResponse(
+           s.id,
+           s.image,
+           s.firstName,
+           s.lastName,
+           s.email,
+           s.phoneNumber,
+           s.direction.name,
+           s.status
+           ) 
+           from Student s
+           where s.email = :email
+           """)
+    Optional<StudentResponse> findStudentByEmail(@Param("email") String email);
 }
 
