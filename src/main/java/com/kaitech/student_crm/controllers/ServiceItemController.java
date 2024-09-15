@@ -14,7 +14,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/service/item")
+@RequestMapping("api/item")
 public class ServiceItemController {
     private final ServiceItemService serviceItemService;
 
@@ -30,9 +30,9 @@ public class ServiceItemController {
     }
 
     @Operation(summary = "Получение элемента сервиса по ID")
-    @GetMapping("/{serviceItemId}")
-    public ResponseEntity<ServiceItemResponse> findServiceItemById(@PathVariable Long serviceItemId) {
-        return ResponseEntity.ok(serviceItemService.findByIdItem(serviceItemId));
+    @GetMapping("/{itemId}")
+    public ResponseEntity<ServiceItemResponse> findServiceItemById(@PathVariable Long itemId) {
+        return ResponseEntity.ok(serviceItemService.findByIdItem(itemId));
     }
 
     @Operation(summary = "Получение всех элементов сервиса")
@@ -48,17 +48,17 @@ public class ServiceItemController {
     }
 
     @Operation(summary = "Обновление элемента сервиса по ID")
-    @PutMapping("update/item/by/{serviceItemId}")
+    @PutMapping("update/item/by/{itemId}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ServiceItemResponse> updateServiceItem(@PathVariable Long serviceItemId,
+    public ResponseEntity<ServiceItemResponse> updateServiceItem(@PathVariable Long itemId,
                                                                  @Valid @RequestBody ServiceItemRequest request) {
-        return ResponseEntity.ok(serviceItemService.updateItemById(serviceItemId, request));
+        return ResponseEntity.ok(serviceItemService.updateItemById(itemId, request));
     }
 
     @Operation(summary = "Удаление элемента сервиса по ID")
-    @DeleteMapping("delete/item/by/{serviceItemId}")
+    @DeleteMapping("delete/item/by/{itemId}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<MessageResponse> deleteServiceItem(@PathVariable Long serviceItemId) {
-        return ResponseEntity.ok().body(serviceItemService.deleteItemById(serviceItemId));
+    public ResponseEntity<MessageResponse> deleteServiceItem(@PathVariable Long itemId) {
+        return ResponseEntity.ok().body(serviceItemService.deleteItemById(itemId));
     }
 }
