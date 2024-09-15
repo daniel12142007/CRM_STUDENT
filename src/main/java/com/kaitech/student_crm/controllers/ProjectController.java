@@ -7,7 +7,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,14 +22,14 @@ public class ProjectController {
     private ProjectService projectService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ROLE_STUDENT', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @Operation(summary = "Вывод всех проектов")
     public List<ProjectResponse> getAllProjects() {
         return projectService.getAllProjects();
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_STUDENT', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @Operation(summary = "Вывод проекта по id")
     public ProjectResponse getProjectById(@PathVariable Long id) {
         return projectService.getProjectById(id);
@@ -89,5 +91,29 @@ public class ProjectController {
     public ProjectResponse saveAllStudentPost(@PathVariable Long projectId,
                                               @RequestParam List<Long> studentIds) {
         return projectService.saveAllStudentInProject(projectId, studentIds);
+    }
+
+    @GetMapping("find/all/project/student")
+    @Operation(summary = "Вывод проектов для студента",
+            description = "Выводит все проекты в которых состоит студент. Для использование нужно войти аккаунт")
+    public List<ProjectResponse> projectResponsesStudent() {
+        if (SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser"))
+            throw new AccessDeniedException("Login to your account");
+        return projectService.findAllResponseByEmail(
+                SecurityContextHolder.getContext().getAuthentication().getName());
+    }
+
+    @GetMapping("project/by/{projectId}/student")
+    @Operation(summary = "Вывод проекта по id для студента",
+            description = """
+                    Выводит проект по id, а если у студента нету доступа к этому проекту то выводит ошибку.
+                     Для использование нужно войти аккаунт
+                    """)
+    public ProjectResponse getProjectByIdStudent(@PathVariable Long projectId) {
+        if (SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser"))
+            throw new AccessDeniedException("Login to your account");
+        return projectService.getProjectByIdStudent(
+                projectId,
+                SecurityContextHolder.getContext().getAuthentication().getName());
     }
 }

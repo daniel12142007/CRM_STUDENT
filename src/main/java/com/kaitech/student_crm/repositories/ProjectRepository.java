@@ -21,9 +21,25 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
                     p.endDate
                 )
                 from Project p
-                order by p.id
+                order by p.id desc
             """)
     List<ProjectResponse> findAllResponse();
+
+    @Query("""
+                select new com.kaitech.student_crm.payload.response.ProjectResponse(
+                    p.id,
+                    p.title,
+                    p.description,
+                    p.projectType,
+                    p.startDate,
+                    p.endDate
+                )
+                from Project p
+                join p.students s
+                on s.email = :email
+                order by p.id desc
+            """)
+    List<ProjectResponse> findAllResponseByEmail(@Param(value = "email") String email);
 
     @Query("""
             select new com.kaitech.student_crm.payload.response.ProjectResponse(
@@ -43,4 +59,14 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<String> findTitlesByStudentId(@Param(value = "studentId") Long studentId);
 
     boolean existsByTitle(String title);
+
+    @Query("""
+            select (count(s)>0)
+            from Project p
+            join p.students s
+            on s.email = :email
+            where p.id = :projectId
+            """)
+    boolean existsStudentInProjectByEmail(@Param(value = "projectId") Long projectId,
+                                          @Param(value = "email") String email);
 }
