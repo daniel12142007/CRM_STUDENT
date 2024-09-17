@@ -5,6 +5,7 @@ import com.kaitech.student_crm.dtos.StudentDTOForAll;
 import com.kaitech.student_crm.exceptions.EmailAlreadyExistsException;
 import com.kaitech.student_crm.models.enums.Status;
 import com.kaitech.student_crm.payload.request.StudentDataRequest;
+import com.kaitech.student_crm.payload.request.StudentRegisterRequest;
 import com.kaitech.student_crm.payload.request.StudentRequest;
 import com.kaitech.student_crm.payload.response.MessageResponse;
 import com.kaitech.student_crm.payload.response.StudentResponse;
@@ -60,7 +61,7 @@ public class StudentController {
     @PostMapping(value = "/add/intern/{directionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Добавление нового стажера", description = "Этот метод может использовать только ROLE_ADMIN")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public StudentDTO addStudent(@RequestParam("image") MultipartFile image,
+    public StudentDTO addStudent(@RequestParam(name = "image", required = false) MultipartFile image,
                                  @RequestParam
                                  @Email(message = "It should have email format")
                                  @NotBlank(message = "Student email is required") String email,
@@ -124,10 +125,11 @@ public class StudentController {
 
     @PostMapping("registered/for/student/{email}/{code}")
     @Operation(summary = "The student registers using this link")
-    public StudentDTO registerStudent(@PathVariable String email,
-                                      @PathVariable Integer code,
-                                      @RequestParam @Valid @Size(min = 8) String password) {
-        return studentUserService.registerStudent(email, code, password);
+    public StudentDTO registerStudent(
+            @RequestBody StudentRegisterRequest request,
+            @PathVariable String email,
+            @PathVariable Integer code) {
+        return studentUserService.registerStudent(request, email, code);
     }
 
     @PutMapping("/{studentId}/assign-level/{levelId}")

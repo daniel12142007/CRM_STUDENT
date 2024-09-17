@@ -9,6 +9,7 @@ import com.kaitech.student_crm.models.*;
 import com.kaitech.student_crm.models.enums.ERole;
 import com.kaitech.student_crm.models.enums.Status;
 import com.kaitech.student_crm.payload.request.StudentDataRequest;
+import com.kaitech.student_crm.payload.request.StudentRegisterRequest;
 import com.kaitech.student_crm.payload.request.StudentRequest;
 import com.kaitech.student_crm.payload.response.DirectionResponse;
 import com.kaitech.student_crm.payload.response.LevelResponse;
@@ -77,11 +78,13 @@ public class StudentUserService {
         newStudent.setLastName(student.getFirstname());
         newStudent.setFirstName(student.getLastname());
         newStudent.setCode(randomCode);
-        try {
-            newStudent.setImage(linkViewImage + s3FileService.upload(image));
-            LOGGER.info("Изображение успешно сохранено");
-        } catch (IOException ignore) {
-            LOGGER.error("Не удалось сохранить изображние");
+        if (image != null) {
+            try {
+                newStudent.setImage(linkViewImage + s3FileService.upload(image));
+                LOGGER.info("Изображение успешно сохранено");
+            } catch (IOException ignore) {
+                LOGGER.error("Не удалось сохранить изображние");
+            }
         }
         newStudent.setStatus(status);
         newStudent.setEmail(student.getEmail());
@@ -212,38 +215,47 @@ public class StudentUserService {
         LOGGER.info("Студент с ID: {} успешно удалён", studentId);
     }
 
-    public StudentDTO registerStudent(String email,
-                                      Integer code,
-                                      String password) {
+    public StudentDTO registerStudent(StudentRegisterRequest request,
+                                      String email,
+                                      Integer code) {
+        if (!request.passwordOne().equals(request.passwordTwo())) {
+            LOGGER.error("Пароли не совпадают");
+            throw new IllegalArgumentException("The passwords do not match");
+        }
         LOGGER.info("Регистрация студента с email: {}", email);
 
         Student student = studentUserRepository.findByEmail(email).orElseThrow(
                 () -> {
                     LOGGER.error("Студент с email: {} не найден", email);
-                    return new EntityNotFoundException("Студент с email: " + email + " не найден");
+                    return new AccessDeniedException("Для студента email: " + email + " доступа нету");
                 });
+
+        LOGGER.info("Поиск direction по ID: {}", request.directionId());
+        Direction direction = directionRepository.findById(request.directionId()).orElseThrow(
+                () -> {
+                    LOGGER.error("Direction с id: {} не найден", request.directionId());
+                    return new NotFoundException("Direction c ID: " + request.directionId() + " не найден");
+                }
+        );
 
         if (student.isRegistered()) {
             LOGGER.error("Ссылка уже была использована для студента с email: {}", email);
             throw new RuntimeException("This link has already been used");
         }
-
-        if (!Objects.equals(student.getCode(), code) || code.equals(0)) {
-            LOGGER.error("Некорректная ссылка для студента с email: {}", email);
-            throw new RuntimeException("This is not a correct link");
-        }
-
         User user = new User(student.getFirstName(),
-                student.getLastName(),
-                student.getEmail(),
-                passwordEncoder.encode(password),
+                request.lastName(),
+                email,
+                passwordEncoder.encode(request.passwordOne()),
                 ERole.ROLE_STUDENT, LocalDateTime.now());
 
         userRepository.save(user);
 
+        student.setUser(user);
+        student.setFirstName(request.firstName());
+        student.setLastName(request.lastName());
+        student.setDirection(direction);
         student.setCode(0);
         student.setRegistered(true);
-        student.setUser(user);
         studentUserRepository.save(student);
 
         LOGGER.info("Студент с email: {} успешно зарегистрирован", email);
