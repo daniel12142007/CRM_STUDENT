@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -233,5 +234,36 @@ public class ProjectService {
 
     public Project convertToProject(ProjectResponse projectResponse) {
         return modelMapper.map(projectResponse, Project.class);
+    }
+
+    public List<ProjectResponse> findAllResponseByEmail(String email) {
+        LOGGER.info("Получение всех проектов связанных с студент email: {}", email);
+        return projectRepository.findAllResponseByEmail(email);
+    }
+
+    public ProjectResponse getProjectByIdStudent(Long id, String email) {
+        LOGGER.info("Проверка доступ студента с email: {}, на проект с id: {}", email, id);
+        if (!projectRepository.existsStudentInProjectByEmail(id, email)) {
+            LOGGER.error("Студента с email: {} нету доступа к проекту с id: {}", email, id);
+            throw new AccessDeniedException("The student does not have access to this project.");
+        }
+        LOGGER.info("Получение проекта с id: {}", id);
+        ProjectResponse projectResponse = projectRepository.findByIdResponse(id);
+
+        if (projectResponse == null) {
+            LOGGER.error("Проект с id: {} не найден", id);
+            throw new NotFoundException("Project with id " + id + " not found");
+        }
+
+        List<StudentResponse> students = studentUserRepository.findAllByProjectIdResponse(id);
+        return new ProjectResponse(
+                projectResponse.id(),
+                projectResponse.title(),
+                projectResponse.description(),
+                projectResponse.projectType(),
+                students,
+                projectResponse.startDate(),
+                projectResponse.endDate()
+        );
     }
 }
