@@ -2,7 +2,7 @@ version: "3.9"
 services:
   backend:
     image: crm_student
-    container_name: backend
+    container_name: back
     ports:
       - "80:2023"
     environment:
