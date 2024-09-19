@@ -176,7 +176,7 @@ public interface StudentUserRepository extends JpaRepository<Student, Long> {
            s.status
            ) 
            from Student s
-           where lower(s.firstName) like lower(concat('%', :firstName, '%'))
+           where lower(s.firstName) like lower(concat(:firstName, '%'))
            """)
     List<StudentResponse> findStudentByName(@Param("firstName") String name);
 
