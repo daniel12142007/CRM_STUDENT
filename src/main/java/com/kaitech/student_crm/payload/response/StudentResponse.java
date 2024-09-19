@@ -30,4 +30,8 @@ public record StudentResponse(Long id,
                            String phoneNumber, Status status,LevelResponse level) {
         this(id, image, firstName, lastName, email, phoneNumber, null, null, status, level);
     }
+    public StudentResponse(Long id, String image, String firstName, String lastName, String email,
+                           String phoneNumber) {
+        this(id, image, firstName, lastName, email, phoneNumber, null, null, null, null);
+    }
 }
