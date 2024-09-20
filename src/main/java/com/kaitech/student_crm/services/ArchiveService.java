@@ -6,7 +6,9 @@ import com.kaitech.student_crm.models.Level;
 import com.kaitech.student_crm.models.Student;
 import com.kaitech.student_crm.payload.response.ArchiveResponse;
 import com.kaitech.student_crm.payload.response.MessageResponse;
+import com.kaitech.student_crm.payload.response.StudentResponse;
 import com.kaitech.student_crm.repositories.ArchiveRepository;
+import com.kaitech.student_crm.repositories.StudentUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ import java.util.List;
 @Slf4j
 public class ArchiveService {
     private final ArchiveRepository archiveRepository;
+    private final StudentUserRepository studentUserRepository;
 
     public List<ArchiveResponse> findAllArchive() {
         log.info("Получение всех ArchiveResponse.");
@@ -52,5 +55,14 @@ public class ArchiveService {
         archiveRepository.delete(archive);
         log.info("Archive с archiveId: {} успешно удален.", archiveId);
         return new MessageResponse("Successfully removed");
+    }
+
+    public List<ArchiveResponse> findAllByStudentEmail(String email) {
+        log.info("Получения студента по email: {}", email);
+        StudentResponse response = studentUserRepository.findStudentByEmail(email).orElseThrow(
+                () -> new NotFoundException("Not found student email: " + email)
+        );
+        log.info("Получение всех ArchiveResponse по email: {}", email);
+        return archiveRepository.findAllResponseByStudentId(response.id());
     }
 }
