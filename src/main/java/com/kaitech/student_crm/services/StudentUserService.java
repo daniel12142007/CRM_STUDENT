@@ -78,8 +78,8 @@ public class StudentUserService {
         Random random = new Random();
         Integer randomCode = random.nextInt(100000000, 999999999);
         Student newStudent = new Student();
-        newStudent.setLastName(student.getFirstname());
-        newStudent.setFirstName(student.getLastname());
+        newStudent.setFirstName(student.getFirstname());
+        newStudent.setLastName(student.getLastname());
         newStudent.setCode(randomCode);
         if (image != null) {
             try {
@@ -582,6 +582,18 @@ public class StudentUserService {
         }
         LOGGER.info("Возвращение информации о студенте с ID {}", studentId);
         return findByIdStudentInfo(studentId);
+    }
+
+
+    public List<StudentResponse> findStudentsByName(String name) {
+        LOGGER.info("Поиск студентов по имени: {}", name);
+        return studentUserRepository.findStudentByName(name);
+    }
+
+    public StudentResponse findStudentByEmail(String email) {
+        LOGGER.info("Поиск студента по email: {}", email);
+        return studentUserRepository.findStudentByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Student not found with email: " + email));
     }
 
 
