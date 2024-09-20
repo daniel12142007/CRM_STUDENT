@@ -197,6 +197,20 @@ public class StudentController {
         }
     }
 
+    @PostMapping("/sendCode")
+    @Operation(summary = "Отправка кода подтверждения для изменения на новый email")
+    public MessageResponse sendVerificationCode(@RequestParam String newEmail) {
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return studentUserService.sendVerificationCode(email, newEmail);
+    }
+
+    @PostMapping("/changeEmail")
+    @Operation(summary = "Подтверждение кода и обновление email")
+    public String changeEmail(@RequestParam int code, @RequestParam String newEmail) {
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return studentUserService.verifyCodeAndChangeEmail(email, code, newEmail);
+    }
+
     @GetMapping("/profile")
     @Operation(summary = "Просмотр профиля  студента ")
     public ResponseEntity<StudentResponse> getStudentProfile() {

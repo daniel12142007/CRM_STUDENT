@@ -91,7 +91,7 @@ public class UserService {
 
         User user = userRepository.findUserByEmail(email).orElseThrow();
         Random random = new Random();
-        Integer randomCode = random.nextInt(100000000, 999999999);
+        Integer randomCode = random.nextInt(9000) + 1000;;
         user.setCode(randomCode);
         userRepository.save(user);
 
