@@ -15,6 +15,7 @@ import com.kaitech.student_crm.payload.request.StudentRequest;
 import com.kaitech.student_crm.payload.response.DirectionResponse;
 import com.kaitech.student_crm.payload.response.LevelResponse;
 import com.kaitech.student_crm.payload.response.MessageResponse;
+import com.kaitech.student_crm.payload.response.ProjectResponse;
 import com.kaitech.student_crm.payload.response.StudentResponse;
 import com.kaitech.student_crm.repositories.*;
 import io.swagger.v3.oas.models.security.SecurityScheme;
@@ -446,7 +447,7 @@ public class StudentUserService {
             archive.setStudent(student);
             archive.setNewLevel(newLevel.getTitle());
             archive.setOldLevel(oldLevel != null ? oldLevel.getTitle() : null);
-            archive.setDateUpdate(LocalDate.now());
+            archive.setDateUpdate(LocalDateTime.now());
             archive.setFirstName(student.getFirstName());
             archive.setLastName(student.getLastName());
             archive.setImage(student.getImage());
@@ -596,7 +597,6 @@ public class StudentUserService {
                 .orElseThrow(() -> new NotFoundException("Student not found with email: " + email));
     }
 
-
     public MessageResponse sendVerificationCode(String token, String newEmail) {
         String currentEmail = jwtUtils.checkToken(token);
         LOGGER.info("Запрос на изменение email для пользователя с текущим email: {}", currentEmail);
@@ -653,6 +653,70 @@ public class StudentUserService {
             }
         } else {
             return "Пользователь с текущим email не найден.";
+        }
+    }
+
+    public Optional<StudentResponse> getStudentProfileByEmail(String email) {
+        Optional<StudentResponse> optionalStudent = studentUserRepository.findStudentByEmail(email);
+
+        if (optionalStudent.isEmpty()) {
+            return Optional.empty();
+        }
+
+        StudentResponse student = optionalStudent.get();
+
+        List<String> projectTitles = projectRepository.findTitlesByStudentId(student.id());
+
+        List<ProjectResponse> projectResponses = projectTitles.stream()
+                .map(title -> new ProjectResponse(null, title, null, null, null, null))  // Заполняем только поле title
+                .toList();
+
+        Optional<String> levelTitle = levelRepository.findLevelByStudentId(student.id());
+
+
+        LevelResponse levelResponse = levelTitle.map(title -> new LevelResponse(null, title, null, null, null))
+                .orElse(null);
+
+        return Optional.of(new StudentResponse(
+                student.id(),
+                student.image(),
+                student.firstName(),
+                student.lastName(),
+                student.email(),
+                student.phoneNumber(),
+                student.direction(),
+                projectResponses,
+                student.status(),
+                levelResponse
+        ));
+    }
+
+
+    @Transactional
+    public StudentResponse updateStudentDetails(String email, String firstName, String lastName, String phoneNumber) {
+        Optional<Student> optionalStudent = studentUserRepository.findEntityByEmail(email);
+        if (optionalStudent.isPresent()) {
+            Student student = optionalStudent.get();
+
+            student.setFirstName(firstName);
+            student.setLastName(lastName);
+            student.setPhoneNumber(phoneNumber);
+
+            studentUserRepository.save(student);
+
+            return new StudentResponse(
+                    student.getId(),
+                    student.getImage(),
+                    student.getFirstName(),
+                    student.getLastName(),
+                    student.getEmail(),
+                    student.getPhoneNumber()
+
+
+            );
+
+        } else {
+            throw new EntityNotFoundException("Student not found with email: " + email);
         }
     }
 }

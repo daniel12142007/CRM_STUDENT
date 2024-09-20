@@ -68,4 +68,12 @@ public interface LevelRepository extends JpaRepository<Level, Long> {
             ) from Level l2 where l2.pointTo = (select max(l3.pointTo) from Level l3)
             """)
     Level findLevelIfNull(@Param(value = "point") Integer point);
+
+    @Query("""
+   select l.title 
+   from Level l
+   join Student s on s.level.id = l.id
+   where s.id = :studentId
+   """)
+    Optional<String> findLevelByStudentId(@Param("studentId") Long studentId);
 }

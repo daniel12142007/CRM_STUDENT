@@ -69,4 +69,5 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
             """)
     boolean existsStudentInProjectByEmail(@Param(value = "projectId") Long projectId,
                                           @Param(value = "email") String email);
+
 }

@@ -1,5 +1,7 @@
 package com.kaitech.student_crm.controllers;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.kaitech.student_crm.config.JwtUtils;
 import com.kaitech.student_crm.dtos.StudentDTO;
 import com.kaitech.student_crm.dtos.StudentDTOForAll;
 import com.kaitech.student_crm.exceptions.EmailAlreadyExistsException;
@@ -8,6 +10,7 @@ import com.kaitech.student_crm.models.enums.Status;
 import com.kaitech.student_crm.payload.request.StudentDataRequest;
 import com.kaitech.student_crm.payload.request.StudentRegisterRequest;
 import com.kaitech.student_crm.payload.request.StudentRequest;
+import com.kaitech.student_crm.payload.request.UpdateStudentRequest;
 import com.kaitech.student_crm.payload.response.MessageResponse;
 import com.kaitech.student_crm.payload.response.StudentResponse;
 import com.kaitech.student_crm.services.StudentUserService;
@@ -24,12 +27,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin
@@ -39,6 +44,7 @@ import java.util.List;
 public class StudentController {
 
     private final StudentUserService studentUserService;
+    private final JwtUtils jwtUtils;
 
     @GetMapping("/{studentId}")
     @Operation(summary = "Получение студента по идентификатору")
@@ -203,6 +209,28 @@ public class StudentController {
     public String changeEmail(@RequestParam int code, @RequestParam String newEmail) {
         String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return studentUserService.verifyCodeAndChangeEmail(email, code, newEmail);
+    }
+
+    @GetMapping("/profile")
+    @Operation(summary = "Просмотр профиля  студента ")
+    public ResponseEntity<StudentResponse> getStudentProfile() {
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        Optional<StudentResponse> studentResponse = studentUserService.getStudentProfileByEmail(email);
+
+        return studentResponse.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+
+    }
+
+
+    @PutMapping("/update-profile")
+    @Operation(summary = "Редактирование профиля")
+    public ResponseEntity<String> updateProfileByToken(@RequestBody UpdateStudentRequest studentRequest) {
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        studentUserService.updateStudentDetails(email, studentRequest.firstName(), studentRequest.lastName(), studentRequest.phoneNumber());
+
+        return ResponseEntity.ok("Profile updated successfully");
     }
 
 }
