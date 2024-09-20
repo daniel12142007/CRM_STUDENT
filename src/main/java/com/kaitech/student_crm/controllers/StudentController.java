@@ -3,6 +3,7 @@ package com.kaitech.student_crm.controllers;
 import com.kaitech.student_crm.dtos.StudentDTO;
 import com.kaitech.student_crm.dtos.StudentDTOForAll;
 import com.kaitech.student_crm.exceptions.EmailAlreadyExistsException;
+import com.kaitech.student_crm.exceptions.NotFoundException;
 import com.kaitech.student_crm.models.enums.Status;
 import com.kaitech.student_crm.payload.request.StudentDataRequest;
 import com.kaitech.student_crm.payload.request.StudentRegisterRequest;
@@ -169,5 +170,24 @@ public class StudentController {
     @Operation(summary = "Фильтррация студента по проекту")
     public List<StudentResponse> getStudentsByProjectId(@PathVariable Long projectId) {
         return studentUserService.filterByProject(projectId);
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "Поиск студента по имени или email")
+    public ResponseEntity<?> findStudentByNameOrEmail(@RequestParam String nameOrEmail) {
+        if (nameOrEmail.contains("@")) {
+            try {
+                StudentResponse student = studentUserService.findStudentByEmail(nameOrEmail);
+                return ResponseEntity.ok(student);
+            } catch (NotFoundException e) {
+                return ResponseEntity.notFound().build();
+            }
+        } else {
+            List<StudentResponse> students = studentUserService.findStudentsByName(nameOrEmail);
+            if (students.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.ok(students);
+        }
     }
 }
