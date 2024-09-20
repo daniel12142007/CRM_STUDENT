@@ -444,7 +444,7 @@ public class StudentUserService {
             archive.setStudent(student);
             archive.setNewLevel(newLevel.getTitle());
             archive.setOldLevel(oldLevel != null ? oldLevel.getTitle() : null);
-            archive.setDateUpdate(LocalDate.now());
+            archive.setDateUpdate(LocalDateTime.now());
             archive.setFirstName(student.getFirstName());
             archive.setLastName(student.getLastName());
             archive.setImage(student.getImage());

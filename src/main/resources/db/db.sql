@@ -55,6 +55,6 @@ insert into student(image, first_name, last_name, email, phone_number, status, p
 values ('image', 'Daniel', 'Ahatdzhanov', 'student@gmail.com', '+996 700 800 900', 'EMPLOYED', 100, 0, true, 5, 2);
 -- добавляем архив
 insert into archive(image, first_name, last_name, date_update, old_level, new_level, old_point, new_point, student_id)
-values ('image', 'Daniel', 'Ahatdazhanov', '2024-04-14', 'A1', 'D1', 10, 20, 1),
-       ('image', 'Daniel', 'Ahatdazhanov', '2024-04-14', 'A1', 'D1', 15, 40, 1),
-       ('image', 'Daniel', 'Ahatdazhanov', '2024-04-14', 'A1', 'D1', 35, 43, null);
+values ('image', 'Daniel', 'Ahatdazhanov', '2024-09-20T13:27:38.641926', 'A1', 'D1', 10, 20, 1),
+       ('image', 'Daniel', 'Ahatdazhanov', '2024-09-20T13:27:38.641926', 'A1', 'D1', 15, 40, 1),
+       ('image', 'Daniel', 'Ahatdazhanov', '2024-09-20T13:27:38.641926', 'A1', 'D1', 35, 43, null);

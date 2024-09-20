@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -21,7 +21,7 @@ public class Archive {
     private String image;
     private String firstName;
     private String lastName;
-    private LocalDate dateUpdate;
+    private LocalDateTime dateUpdate;
     private String newLevel;
     private String oldLevel;
     private Integer newPoint;
@@ -39,7 +39,7 @@ public class Archive {
         this.oldLevel = level.getTitle();
         this.newPoint = student.getPoint();
         this.oldPoint = student.getPoint();
-        this.dateUpdate = LocalDate.now();
+        this.dateUpdate = LocalDateTime.now();
     }
 
     public Archive(Student newStudent, Integer oldPoint, Level newLevel, Level oldLevel) {
@@ -51,6 +51,6 @@ public class Archive {
         this.oldLevel = oldLevel.getTitle();
         this.newPoint = newStudent.getPoint();
         this.oldPoint = oldPoint;
-        this.dateUpdate = LocalDate.now();
+        this.dateUpdate = LocalDateTime.now();
     }
 }
