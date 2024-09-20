@@ -179,6 +179,25 @@ public class StudentController {
     }
 
     @GetMapping("/search")
+    @Operation(summary = "Поиск студента по имени или email")
+    public ResponseEntity<?> findStudentByNameOrEmail(@RequestParam String nameOrEmail) {
+        if (nameOrEmail.contains("@")) {
+            try {
+                StudentResponse student = studentUserService.findStudentByEmail(nameOrEmail);
+                return ResponseEntity.ok(student);
+            } catch (NotFoundException e) {
+                return ResponseEntity.notFound().build();
+            }
+        } else {
+            List<StudentResponse> students = studentUserService.findStudentsByName(nameOrEmail);
+            if (students.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.ok(students);
+        }
+    }
+
+    @GetMapping("/search")
     @Operation(summary = "Поиск студента по имени")
     public ResponseEntity<List<StudentResponse>> findStudentsByName(@RequestParam String name) {
         List<StudentResponse> students = studentUserService.findStudentsByName(name);
