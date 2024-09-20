@@ -197,78 +197,26 @@ public class StudentController {
         }
     }
 
-    @GetMapping("/search")
-    @Operation(summary = "Поиск студента по имени")
-    public ResponseEntity<List<StudentResponse>> findStudentsByName(@RequestParam String name) {
-        List<StudentResponse> students = studentUserService.findStudentsByName(name);
-        if (students.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(students);
-    }
-
-
-    @GetMapping("/email")
-    @Operation(summary = "Поиск студента по email")
-    public ResponseEntity<StudentResponse> findStudentByEmail(@RequestParam String email) {
-        try {
-            StudentResponse student = studentUserService.findStudentByEmail(email);
-            return ResponseEntity.ok(student);
-        } catch (NotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
     @GetMapping("/profile")
     @Operation(summary = "Просмотр профиля  студента ")
-    public ResponseEntity<StudentResponse> getStudentProfile(HttpServletRequest request) {
+    public ResponseEntity<StudentResponse> getStudentProfile() {
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        String token = request.getHeader("Authorization");
+        Optional<StudentResponse> studentResponse = studentUserService.getStudentProfileByEmail(email);
 
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        token = token.substring(7);
+        return studentResponse.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
 
-        try {
-            String email = jwtUtils.checkToken(token);
-
-            Optional<StudentResponse> studentResponse = studentUserService.getStudentProfileByEmail(email);
-
-            if (studentResponse.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-
-            return ResponseEntity.ok(studentResponse.get());
-        } catch (JWTVerificationException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
     }
 
 
     @PutMapping("/update-profile")
     @Operation(summary = "Редактирование профиля")
-    public ResponseEntity<String> updateProfileByToken(HttpServletRequest request, @RequestBody UpdateStudentRequest studentRequest) {
+    public ResponseEntity<String> updateProfileByToken(@RequestBody UpdateStudentRequest studentRequest) {
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        String token = request.getHeader("Authorization");
+        studentUserService.updateStudentDetails(email, studentRequest.firstName(), studentRequest.lastName(), studentRequest.phoneNumber());
 
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        token = token.substring(7);
-
-        try {
-
-            String email = jwtUtils.checkToken(token);
-
-            studentUserService.updateStudentDetails(email, studentRequest.firstName(), studentRequest.lastName(), studentRequest.phoneNumber());
-
-            return ResponseEntity.ok("Profile updated successfully");
-        } catch (JWTVerificationException e) {
-
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired token");
-        }
+        return ResponseEntity.ok("Profile updated successfully");
     }
 
 }

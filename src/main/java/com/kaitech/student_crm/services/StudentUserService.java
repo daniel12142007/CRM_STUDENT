@@ -595,16 +595,6 @@ public class StudentUserService {
     }
 
 
-    public List<StudentResponse> findStudentsByName(String name) {
-        LOGGER.info("Поиск студентов по имени: {}", name);
-        return studentUserRepository.findStudentByName(name);
-    }
-
-    public StudentResponse findStudentByEmail(String email) {
-        LOGGER.info("Поиск студента по email: {}", email);
-        return studentUserRepository.findStudentByEmail(email)
-                .orElseThrow(() -> new NotFoundException("Student not found with email: " + email));
-    }
 
     public Optional<StudentResponse> getStudentProfileByEmail(String email) {
         Optional<StudentResponse> optionalStudent = studentUserRepository.findStudentByEmail(email);
@@ -615,7 +605,7 @@ public class StudentUserService {
 
         StudentResponse student = optionalStudent.get();
 
-        List<String> projectTitles = projectRepository.findProjectsByStudentId(student.id());
+        List<String> projectTitles = projectRepository.findTitlesByStudentId(student.id());
 
         List<ProjectResponse> projectResponses = projectTitles.stream()
                 .map(title -> new ProjectResponse(null, title, null, null, null, null))  // Заполняем только поле title
