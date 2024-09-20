@@ -193,19 +193,16 @@ public class StudentController {
 
     @PostMapping("/sendCode")
     @Operation(summary = "Отправка кода подтверждения для изменения на новый email")
-    public MessageResponse sendVerificationCode(@RequestHeader("Authorization") String token,
-                                                @RequestParam String newEmail) {
-        token = token.replace("Bearer ", "");
-        return studentUserService.sendVerificationCode(token, newEmail);
+    public MessageResponse sendVerificationCode(@RequestParam String newEmail) {
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return studentUserService.sendVerificationCode(email, newEmail);
     }
 
     @PostMapping("/changeEmail")
     @Operation(summary = "Подтверждение кода и обновление email")
-    public String changeEmail(@RequestHeader("Authorization") String token,
-                              @RequestParam int code,
-                              @RequestParam String newEmail) {
-
-        token = token.replace("Bearer ", "");
-        return studentUserService.verifyCodeAndChangeEmail(token, code, newEmail);
+    public String changeEmail(@RequestParam int code, @RequestParam String newEmail) {
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return studentUserService.verifyCodeAndChangeEmail(email, code, newEmail);
     }
+
 }
