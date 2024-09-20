@@ -1,5 +1,6 @@
 package com.kaitech.student_crm.services;
 
+import com.kaitech.student_crm.config.JwtUtils;
 import com.kaitech.student_crm.dtos.StudentDTO;
 import com.kaitech.student_crm.dtos.StudentDTOForAll;
 import com.kaitech.student_crm.exceptions.EmailAlreadyExistsException;
@@ -13,6 +14,7 @@ import com.kaitech.student_crm.payload.request.StudentRegisterRequest;
 import com.kaitech.student_crm.payload.request.StudentRequest;
 import com.kaitech.student_crm.payload.response.DirectionResponse;
 import com.kaitech.student_crm.payload.response.LevelResponse;
+import com.kaitech.student_crm.payload.response.MessageResponse;
 import com.kaitech.student_crm.payload.response.StudentResponse;
 import com.kaitech.student_crm.repositories.*;
 import io.swagger.v3.oas.models.security.SecurityScheme;
@@ -52,6 +54,7 @@ public class StudentUserService {
     private final LevelRepository levelRepository;
     private final NotificationRepository notificationRepository;
     private final S3FileService s3FileService;
+    private final JwtUtils jwtUtils;
     @Value("${link}")
     private String link;
     @Value("${s3.viewImage}")
@@ -579,5 +582,65 @@ public class StudentUserService {
         }
         LOGGER.info("Возвращение информации о студенте с ID {}", studentId);
         return findByIdStudentInfo(studentId);
+    }
+
+
+    public MessageResponse sendVerificationCode(String token, String newEmail) {
+        String currentEmail = jwtUtils.checkToken(token);
+        LOGGER.info("Запрос на изменение email для пользователя с текущим email: {}", currentEmail);
+
+        Optional<Student> studentOpt = studentUserRepository.findByEmail(currentEmail);
+
+        if (studentOpt.isEmpty()) {
+            LOGGER.warn("Пользователь с email {} не найден", currentEmail);
+            return new MessageResponse("Пользователь с текущим email не найден.");
+        }
+
+        Student student = studentOpt.get();
+
+        Random random = new Random();
+        int verificationCode = 1000 + random.nextInt(9000);
+        student.setCode(verificationCode);
+
+        studentUserRepository.save(student);
+
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(newEmail);
+            message.setSubject("Код подтверждения для смены email");
+            message.setText("Ваш код подтверждения: " + verificationCode);
+
+            javaMailSender.send(message);
+            LOGGER.info("Письмо с кодом подтверждения отправлено на новый email: {}", newEmail);
+        } catch (MailException e) {
+            LOGGER.error("Ошибка при отправке письма на email: {}", newEmail, e);
+            throw new RuntimeException("Не удалось отправить письмо с кодом подтверждения. Пожалуйста, введите корректный адрес электронной почты.");
+        }
+
+        return new MessageResponse("Код подтверждения отправлен на ваш новый email: " + newEmail);
+    }
+
+    public String verifyCodeAndChangeEmail(String token, int inputCode, String newEmail) {
+        String currentEmail = jwtUtils.checkToken(token);
+        Optional<Student> studentOpt = studentUserRepository.findByEmail(currentEmail);
+
+        if (studentOpt.isPresent()) {
+            Student student = studentOpt.get();
+
+            if (studentUserRepository.findByEmail(newEmail).isPresent()) {
+                return "Новый email уже используется. Пожалуйста, используйте другой email.";
+            }
+
+            if (student.getCode() != null && student.getCode() == inputCode) {
+                student.setEmail(newEmail);
+                student.setCode(0);
+                studentUserRepository.save(student);
+                return "Email успешно изменен на " + newEmail;
+            } else {
+                return "Неверный код подтверждения!";
+            }
+        } else {
+            return "Пользователь с текущим email не найден.";
+        }
     }
 }

@@ -170,4 +170,22 @@ public class StudentController {
     public List<StudentResponse> getStudentsByProjectId(@PathVariable Long projectId) {
         return studentUserService.filterByProject(projectId);
     }
+
+    @PostMapping("/sendCode")
+    @Operation(summary = "Отправка кода подтверждения для изменения на новый email")
+    public MessageResponse sendVerificationCode(@RequestHeader("Authorization") String token,
+                                                @RequestParam String newEmail) {
+        token = token.replace("Bearer ", "");
+        return studentUserService.sendVerificationCode(token, newEmail);
+    }
+
+    @PostMapping("/changeEmail")
+    @Operation(summary = "Подтверждение кода и обновление email")
+    public String changeEmail(@RequestHeader("Authorization") String token,
+                              @RequestParam int code,
+                              @RequestParam String newEmail) {
+
+        token = token.replace("Bearer ", "");
+        return studentUserService.verifyCodeAndChangeEmail(token, code, newEmail);
+    }
 }
