@@ -1,10 +1,10 @@
 package com.kaitech.student_crm.payload.response;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record ArchiveResponse(
         Long id,
-        LocalDate dateUpdate,
+        LocalDateTime dateUpdate,
         String newLevel,
         String oldLevel,
         Integer oldPoint,
