@@ -354,7 +354,7 @@ public class StudentUserService {
         studentUserRepository.save(student);
         Notification notification = Notification.builder()
                 .student(student)
-                .date(LocalDate.now())
+                .date(LocalDateTime.now())
                 .message("Ваш уровень был изменен с " + archive.getOldLevel() + " на " + archive.getNewLevel() + ". Ваш старый балл — " + oldPoint + ", а новый — " + point)
                 .build();
         LOGGER.info("Сохранен студент с ID: {}", studentId);
