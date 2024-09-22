@@ -215,13 +215,12 @@ public class StudentUserService {
         LOGGER.info("Студент с ID: {} успешно удалён", studentId);
     }
 
-    public StudentDTO registerStudent(StudentRegisterRequest request,
-                                      String email,
-                                      Integer code) {
+    public StudentDTO registerStudent(StudentRegisterRequest request) {
         if (!request.passwordOne().equals(request.passwordTwo())) {
             LOGGER.error("Пароли не совпадают");
             throw new IllegalArgumentException("The passwords do not match");
         }
+        String email = request.email();
         LOGGER.info("Регистрация студента с email: {}", email);
 
         Student student = studentUserRepository.findByEmail(email).orElseThrow(

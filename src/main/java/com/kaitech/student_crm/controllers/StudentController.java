@@ -124,13 +124,11 @@ public class StudentController {
         return studentUserService.deleteImage(SecurityContextHolder.getContext().getAuthentication().getName(), studentId);
     }
 
-    @PostMapping("registered/for/student/{email}/{code}")
+    @PostMapping("registered/for/student/")
     @Operation(summary = "The student registers using this link")
     public StudentDTO registerStudent(
-            @RequestBody StudentRegisterRequest request,
-            @PathVariable String email,
-            @PathVariable Integer code) {
-        return studentUserService.registerStudent(request, email, code);
+            @RequestBody StudentRegisterRequest request) {
+        return studentUserService.registerStudent(request);
     }
 
     @PutMapping("/{studentId}/assign-level/{levelId}")

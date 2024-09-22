@@ -5,6 +5,7 @@ import javax.validation.constraints.Size;
 public record StudentRegisterRequest(
         String firstName,
         String lastName,
+        String email,
         Long directionId,
         @Size(min = 6, message = "The password size must be at least 8 letters") String phoneNumber,
         String passwordOne,
