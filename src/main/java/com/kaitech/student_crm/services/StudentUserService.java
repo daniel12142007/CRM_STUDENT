@@ -136,6 +136,17 @@ public class StudentUserService {
                 Direction direction = directionRepository.findById(request.direction()).orElseThrow(
                         () -> new NotFoundException("Not found direction ID:" + request.direction())
                 );
+                try {
+                    if (direction != student.getDirection()) {
+                        Notification notification = Notification.builder()
+                                .student(student)
+                                .date(LocalDateTime.now())
+                                .message("Ваша направление был изменен с " + student.getDirection().getName() + " на " + direction.getName())
+                                .build();
+                        notificationRepository.save(notification);
+                    }
+                } catch (Exception ignore) {
+                }
                 student.setDirection(direction);
             }
             User user = userRepository.findUserByEmail(student.getEmail()).orElseThrow(
