@@ -14,15 +14,23 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.Objects;
 import java.util.Random;
@@ -36,7 +44,7 @@ public class UserService {
     private final JavaMailSender javaMailSender;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
-
+    private final ResourceLoader resourceLoader;
     @Value("${linkReset}")
     private String linkForReset;
 
@@ -91,20 +99,32 @@ public class UserService {
 
         User user = userRepository.findUserByEmail(email).orElseThrow();
         Random random = new Random();
-        Integer randomCode = random.nextInt(9000) + 1000;;
+        Integer randomCode = random.nextInt(9000) + 1000;
         user.setCode(randomCode);
         userRepository.save(user);
 
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(email);
-            message.setSubject("Ссылка для сброса пароля");
-            message.setText("Ваша ссылка для сброса пароля: " + linkForReset + "/" + email + "/" + randomCode);
-            javaMailSender.send(message);
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+
+
+            String htmlContent = loadHtmlTemplate("classpath:static-html/resetPassword.html");
+            // Замена {code} на реальный код
+            htmlContent = htmlContent.replace("{code}", String.valueOf(randomCode));
+
+            helper.setFrom("KaiTech");
+            helper.setSubject("Код для сброса пароля");
+            helper.setTo(email);
+            helper.setText(htmlContent.replace("{code}", String.valueOf(randomCode)), true); // true для HTML
+
+            javaMailSender.send(mimeMessage);
+
             LOGGER.info("Ссылка для сброса пароля отправлена на email: {}", email);
-        } catch (MailException e) {
+        } catch (MailException | IOException e) {
             LOGGER.error("Ошибка при отправке письма на email: {}", email, e);
             throw new RuntimeException("Please enter a valid email address.");
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
         }
 
         return new MessageResponse("The link has been sent to your email.");
@@ -175,5 +195,10 @@ public class UserService {
                     LOGGER.error("Пользователь с ID: {} не найден", id);
                     return new UsernameNotFoundException("User not found");
                 });
+    }
+
+    private String loadHtmlTemplate(String path) throws IOException {
+        Resource resource = resourceLoader.getResource(path);
+        return new String(Files.readAllBytes(Paths.get(resource.getURI())));
     }
 }
