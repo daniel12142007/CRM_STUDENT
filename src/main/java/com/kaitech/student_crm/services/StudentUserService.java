@@ -24,17 +24,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -60,6 +67,7 @@ public class StudentUserService {
     private String link;
     @Value("${s3.viewImage}")
     private String linkViewImage;
+    private final ResourceLoader resourceLoader;
 
     public StudentDTO createStudent(StudentDataRequest student,
                                     Status status,
@@ -96,14 +104,24 @@ public class StudentUserService {
         newStudent.setPhoneNumber(student.getPhoneNumber());
 
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(newStudent.getEmail());
-            message.setSubject("Ссылка для регистрации работает только 1 раз");
-            message.setText("Ваша ссылка для регистрации:" + link + "/" + newStudent.getEmail() + "/" + randomCode);
-            javaMailSender.send(message);
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+
+
+            String htmlContent = loadHtmlTemplate("classpath:static-html/registered.html");
+
+            helper.setFrom("KaiTech");
+            helper.setSubject("Добро пожаловать!");
+            helper.setTo(newStudent.getEmail());
+            helper.setText(htmlContent, true);
+            javaMailSender.send(mimeMessage);
         } catch (MailException e) {
             LOGGER.error("Ошибка при отправке письма на email: {}", newStudent.getEmail());
             throw new RuntimeException("Please enter a valid email address.");
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         try {
@@ -370,17 +388,6 @@ public class StudentUserService {
                 .build();
         LOGGER.info("Сохранен студент с ID: {}", studentId);
 
-        try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(student.getEmail());
-            message.setSubject("Изменение уровня");
-            message.setText("Ваш уровень был изменен с " + archive.getOldLevel() + " на " + archive.getNewLevel() + ". Ваш старый балл — " + oldPoint + ", а новый — " + point);
-            javaMailSender.send(message);
-        } catch (MailException e) {
-            LOGGER.error("Ошибка при отправке письма на email: {}", student.getEmail());
-            throw new RuntimeException("Please enter a valid email address.");
-        }
-
         archiveRepository.save(archive);
         notificationRepository.save(notification);
         LOGGER.info("Сохранен архив и уведомление для студента с ID: {}", studentId);
@@ -607,14 +614,13 @@ public class StudentUserService {
                 .orElseThrow(() -> new NotFoundException("Student not found with email: " + email));
     }
 
-    public MessageResponse sendVerificationCode(String token, String newEmail) {
-        String currentEmail = jwtUtils.checkToken(token);
-        LOGGER.info("Запрос на изменение email для пользователя с текущим email: {}", currentEmail);
+    public MessageResponse sendVerificationCode(String email, String newEmail) {
+        LOGGER.info("Запрос на изменение email для пользователя с текущим email: {}", email);
 
-        Optional<Student> studentOpt = studentUserRepository.findByEmail(currentEmail);
+        Optional<Student> studentOpt = studentUserRepository.findByEmail(email);
 
         if (studentOpt.isEmpty()) {
-            LOGGER.warn("Пользователь с email {} не найден", currentEmail);
+            LOGGER.warn("Пользователь с email {} не найден", email);
             return new MessageResponse("Пользователь с текущим email не найден.");
         }
 
@@ -627,16 +633,29 @@ public class StudentUserService {
         studentUserRepository.save(student);
 
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(newEmail);
-            message.setSubject("Код подтверждения для смены email");
-            message.setText("Ваш код подтверждения: " + verificationCode);
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
 
-            javaMailSender.send(message);
+
+            String htmlContent = loadHtmlTemplate("classpath:static-html/emailUpdate.html");
+            // Замена {code} на реальный код
+            htmlContent = htmlContent.replace("{code}", String.valueOf(verificationCode));
+
+            helper.setFrom("KaiTech");
+            helper.setSubject("Код для сброса пароля");
+            helper.setTo(newEmail);
+            helper.setText(htmlContent.replace("{code}", String.valueOf(verificationCode)), true); // true для HTML
+
+            javaMailSender.send(mimeMessage);
+
             LOGGER.info("Письмо с кодом подтверждения отправлено на новый email: {}", newEmail);
         } catch (MailException e) {
             LOGGER.error("Ошибка при отправке письма на email: {}", newEmail, e);
             throw new RuntimeException("Не удалось отправить письмо с кодом подтверждения. Пожалуйста, введите корректный адрес электронной почты.");
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         return new MessageResponse("Код подтверждения отправлен на ваш новый email: " + newEmail);
@@ -728,5 +747,10 @@ public class StudentUserService {
         } else {
             throw new EntityNotFoundException("Student not found with email: " + email);
         }
+    }
+
+    private String loadHtmlTemplate(String path) throws IOException {
+        Resource resource = resourceLoader.getResource(path);
+        return new String(Files.readAllBytes(Paths.get(resource.getURI())));
     }
 }
