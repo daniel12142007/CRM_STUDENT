@@ -205,7 +205,7 @@ public class StudentController {
     @PostMapping("/changeEmail")
     @Operation(summary = "Подтверждение кода и обновление email")
     public String changeEmail(@RequestParam int code, @RequestParam String newEmail) {
-        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return studentUserService.verifyCodeAndChangeEmail(email, code, newEmail);
     }
 

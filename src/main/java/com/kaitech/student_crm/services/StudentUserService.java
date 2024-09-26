@@ -649,10 +649,10 @@ public class StudentUserService {
         return new MessageResponse("Код подтверждения отправлен на ваш новый email: " + newEmail);
     }
 
-    public String verifyCodeAndChangeEmail(String token, int inputCode, String newEmail) {
-        String currentEmail = jwtUtils.checkToken(token);
-        Optional<Student> studentOpt = studentUserRepository.findByEmail(currentEmail);
-
+    public String verifyCodeAndChangeEmail(String email, int inputCode, String newEmail) {
+        Optional<Student> studentOpt = studentUserRepository.findByEmail(email);
+        User user = userRepository.findUserByEmail(email).orElseThrow();
+        user.setEmail(email);
         if (studentOpt.isPresent()) {
             Student student = studentOpt.get();
 
@@ -664,6 +664,7 @@ public class StudentUserService {
                 student.setEmail(newEmail);
                 student.setCode(0);
                 studentUserRepository.save(student);
+                userRepository.save(user);
                 return "Email успешно изменен на " + newEmail;
             } else {
                 return "Неверный код подтверждения!";
