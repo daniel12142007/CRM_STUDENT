@@ -46,8 +46,7 @@ public class TestController {
             helper.setTo(email);
             helper.setSubject("Hello");
 
-            // HTML-контент
-            String htmlContent = "<h1>Ответ на ваше обращение</h1><p>Спасибо, что связались с нами!</p>";
+            String htmlContent = loadHtmlTemplate("classpath:static-html/resetPassword.html");
             helper.setText(htmlContent, true); // true для того, чтобы указать, что это HTML-содержимое
 
             javaMailSender.send(message);
