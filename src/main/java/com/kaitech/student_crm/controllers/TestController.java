@@ -44,7 +44,7 @@ public class TestController {
 
         String htmlContent = loadHtmlTemplate("classpath:static-html/registered.html");
 
-        helper.setFrom("kaitechcrm@gmail.com");
+        helper.setFrom("noreply@baeldung.com");
         helper.setSubject("Добро пожаловать!");
         helper.setTo(email);
         helper.setText(htmlContent, true);
