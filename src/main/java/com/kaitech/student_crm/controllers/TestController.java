@@ -23,19 +23,97 @@ public class TestController {
     private final ResourceLoader resourceLoader;
 
     @GetMapping("test/old/{email}")
-    public String sendEmail(@PathVariable String email) throws MessagingException {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(email);
-        message.setSubject("Ссылка для регистрации работает только 1 раз");
-        javaMailSender.send(message);
+    public String sendEmail(@PathVariable String email) throws MessagingException, IOException {
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+
+        String htmlContent = loadHtmlTemplate("""
+                <!DOCTYPE html>
+                <html lang="ru">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Сброс пароля</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            margin: 0;
+                            padding: 0;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            height: 100vh;
+                            background-color: #f2f2f2;
+                        }
+                
+                        .email-container {
+                            width: 780px;
+                            height: 600px;
+                            background-color: #fff;
+                            border: 1px solid #ddd;
+                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                        }
+                
+                        .header {
+                            background-color: #407BFF;
+                            color: #fff;
+                            text-align: left;
+                            padding: 20px;
+                            font-size: 24px;
+                            font-weight: bold;
+                        }
+                
+                        .content {
+                            padding: 40px;
+                            text-align: center;
+                        }
+                
+                        .content h1 {
+                            font-size: 24px;
+                            color: #333;
+                        }
+                
+                        .content p {
+                            font-size: 16px;
+                            color: #555;
+                            line-height: 1.5;
+                        }
+                
+                        .code {
+                            font-size: 48px;
+                            font-weight: bold;
+                            margin: 30px 0;
+                            color: #333;
+                        }
+                    </style>
+                </head>
+                <body>
+                <div class="email-container">
+                    <div class="header">
+                        KaiTech
+                    </div>
+                    <div class="content">
+                        <h1>Ваша письмо для сброса пароля</h1>
+                        <p>Данный код предназначен для сброса пароля.
+                            Пожалуйста, не делитесь этим кодом с другими людьми, так как это может привести к
+                            несанкционированному доступу к вашему аккаунту.</p>
+                        <div class="code">{code}</div>
+                    </div>
+                </div>
+                </body>
+                </html>
+                """);
+
+        helper.setFrom("kaitechcrm@gmail.com");
+        helper.setSubject("Добро пожаловать!");
+        helper.setTo(email);
+        helper.setText(htmlContent, true);
+        javaMailSender.send(mimeMessage);
         return "Success";
     }
 
     @GetMapping("test/new/{email}")
     public String sendEmailNew(@PathVariable String email) throws MessagingException, IOException {
-        if (email != null) {
-            return loadHtmlTemplate("classpath:static-html/registered.html");
-        }
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
 
