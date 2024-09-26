@@ -39,16 +39,21 @@ public class TestController {
 
     @GetMapping("test/new/{email}")
     public String sendEmailNew(@PathVariable String email) throws MessagingException, IOException {
-        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true); // true для возможности работы с вложениями
+            helper.setFrom("noreply@baeldung.com");
+            helper.setTo(email);
+            helper.setSubject("Hello");
 
-        String htmlContent = loadHtmlTemplate("classpath:static-html/registered.html");
+            // HTML-контент
+            String htmlContent = "<h1>Ответ на ваше обращение</h1><p>Спасибо, что связались с нами!</p>";
+            helper.setText(htmlContent, true); // true для того, чтобы указать, что это HTML-содержимое
 
-        helper.setFrom("noreply@baeldung.com");
-        helper.setSubject("Добро пожаловать!");
-        helper.setTo(email);
-        helper.setText(htmlContent, true);
-        javaMailSender.send(mimeMessage);
+            javaMailSender.send(message);
+        } catch (Exception e) {
+            throw new RuntimeException("Вы ввели неправильный адрес электронной почты", e);
+        }
         return "Success";
     }
 
