@@ -21,6 +21,7 @@ import java.nio.file.Paths;
 public class TestController {
     private final JavaMailSender javaMailSender;
     private final ResourceLoader resourceLoader;
+
     @GetMapping("test/old/{email}")
     public String sendEmail(@PathVariable String email) throws MessagingException {
         SimpleMailMessage message = new SimpleMailMessage();
@@ -32,19 +33,22 @@ public class TestController {
 
     @GetMapping("test/new/{email}")
     public String sendEmailNew(@PathVariable String email) throws MessagingException, IOException {
+        if (email != null) {
+            return loadHtmlTemplate("classpath:static-html/registered.html");
+        }
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
 
-
         String htmlContent = loadHtmlTemplate("classpath:static-html/registered.html");
 
-        helper.setFrom("KaiTech");
+        helper.setFrom("kaitechcrm@gmail.com");
         helper.setSubject("Добро пожаловать!");
         helper.setTo(email);
         helper.setText(htmlContent, true);
         javaMailSender.send(mimeMessage);
         return "Success";
     }
+
     private String loadHtmlTemplate(String path) throws IOException {
         Resource resource = resourceLoader.getResource(path);
         return new String(Files.readAllBytes(Paths.get(resource.getURI())));
