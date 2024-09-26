@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class JWTTokenSuccessResponse {
     private boolean success;
     private String token;
-
+    private String role;
 }

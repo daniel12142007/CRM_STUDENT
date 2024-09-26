@@ -65,7 +65,7 @@ public class UserService {
         String jwt = jwtUtils.generateToken(loginRequest.getEmail());
 
         LOGGER.info("Вход успешен для пользователя с email: {}", loginRequest.getEmail());
-        return ResponseEntity.ok(new JWTTokenSuccessResponse(true, jwt));
+        return ResponseEntity.ok(new JWTTokenSuccessResponse(true, jwt,user.getRole().toString()));
     }
 
     public UserResponse newPassword(String email, Integer code, String password) {
