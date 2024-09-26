@@ -98,41 +98,36 @@ public class StudentUserService {
                 LOGGER.error("Не удалось сохранить изображние");
             }
         }
-        newStudent.setStatus(status);
-        newStudent.setEmail(student.getEmail());
-        newStudent.setDirection(directionRepository.findById(directionId).get());
-        newStudent.setPhoneNumber(student.getPhoneNumber());
-
         try {
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
-
+            newStudent.setStatus(status);
+            newStudent.setEmail(student.getEmail());
+            newStudent.setDirection(directionRepository.findById(directionId).get());
+            newStudent.setPhoneNumber(student.getPhoneNumber());
 
             String htmlContent = loadHtmlTemplate("classpath:static-html/registered.html");
-
-            helper.setFrom("KaiTech");
-            helper.setSubject("Добро пожаловать!");
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true); // true для возможности работы с вложениями
+            helper.setFrom("noreply@baeldung.com");
             helper.setTo(newStudent.getEmail());
-            helper.setText(htmlContent, true);
-            javaMailSender.send(mimeMessage);
-        } catch (MailException e) {
-            LOGGER.error("Ошибка при отправке письма на email: {}", newStudent.getEmail());
-            throw new RuntimeException("Please enter a valid email address.");
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            helper.setSubject("Добро пожаловать!");
+            helper.setText(htmlContent, true); // true для того, чтобы указать, что это HTML-содержимое
 
+            javaMailSender.send(message);
+        } catch (Exception e) {
+            throw new RuntimeException("Вы ввели неправильный адрес электронной почты", e);
+        }
         try {
             LOGGER.info("Сохранение студента {}", student.getEmail());
             studentUserRepository.save(newStudent);
-        } catch (Exception e) {
+        } catch (
+                Exception e) {
             LOGGER.error("Ошибка при регистрации, {}", e.getMessage());
             throw new UserExistException("The student " + newStudent.getFirstName() + " " + newStudent.getLastName() + " already exists");
         }
 
-        return findByIdStudentInfo(newStudent.getId());
+        return
+
+                findByIdStudentInfo(newStudent.getId());
     }
 
     public StudentDTO updateStudent(Long studentId, StudentRequest request) {
@@ -633,21 +628,16 @@ public class StudentUserService {
         studentUserRepository.save(student);
 
         try {
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
-
-
             String htmlContent = loadHtmlTemplate("classpath:static-html/emailUpdate.html");
-            // Замена {code} на реальный код
-            htmlContent = htmlContent.replace("{code}", String.valueOf(verificationCode));
-
-            helper.setFrom("KaiTech");
-            helper.setSubject("Код для сброса пароля");
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true); // true для возможности работы с вложениями
+            helper.setFrom("noreply@baeldung.com");
             helper.setTo(newEmail);
-            helper.setText(htmlContent.replace("{code}", String.valueOf(verificationCode)), true); // true для HTML
+            helper.setSubject("Код для обновления email");
+            helper.setText(htmlContent.replace("{code}", String.valueOf(verificationCode)),
+                    true); // true для того, чтобы указать, что это HTML-содержимое
 
-            javaMailSender.send(mimeMessage);
-
+            javaMailSender.send(message);
             LOGGER.info("Письмо с кодом подтверждения отправлено на новый email: {}", newEmail);
         } catch (MailException e) {
             LOGGER.error("Ошибка при отправке письма на email: {}", newEmail, e);

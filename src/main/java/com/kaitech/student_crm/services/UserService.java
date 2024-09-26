@@ -104,21 +104,16 @@ public class UserService {
         userRepository.save(user);
 
         try {
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
-
-
             String htmlContent = loadHtmlTemplate("classpath:static-html/resetPassword.html");
-            // Замена {code} на реальный код
-            htmlContent = htmlContent.replace("{code}", String.valueOf(randomCode));
-
-            helper.setFrom("KaiTech");
-            helper.setSubject("Код для сброса пароля");
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true); // true для возможности работы с вложениями
+            helper.setFrom("noreply@baeldung.com");
             helper.setTo(email);
-            helper.setText(htmlContent.replace("{code}", String.valueOf(randomCode)), true); // true для HTML
+            helper.setSubject("Код для сброса пароля");
+            helper.setText(htmlContent.replace("{code}", String.valueOf(randomCode)),
+                    true); // true для того, чтобы указать, что это HTML-содержимое
 
-            javaMailSender.send(mimeMessage);
-
+            javaMailSender.send(message);
             LOGGER.info("Ссылка для сброса пароля отправлена на email: {}", email);
         } catch (MailException | IOException e) {
             LOGGER.error("Ошибка при отправке письма на email: {}", email, e);
