@@ -2,10 +2,12 @@ package com.kaitech.student_crm.services;
 
 import com.kaitech.student_crm.exceptions.NotFoundException;
 import com.kaitech.student_crm.models.Direction;
+import com.kaitech.student_crm.models.Notification;
 import com.kaitech.student_crm.models.Student;
 import com.kaitech.student_crm.payload.request.DirectionCreateRequest;
 import com.kaitech.student_crm.payload.response.DirectionResponse;
 import com.kaitech.student_crm.repositories.DirectionRepository;
+import com.kaitech.student_crm.repositories.NotificationRepository;
 import com.kaitech.student_crm.repositories.StudentUserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,12 +26,16 @@ public class DirectionService {
 
     private final DirectionRepository directionRepository;
     private final StudentUserRepository studentUserRepository;
+    private final NotificationRepository notificationRepository;
     private final Logger LOGGER = LoggerFactory.getLogger(DirectionService.class);
 
     @Autowired
-    public DirectionService(DirectionRepository directionRepository, StudentUserRepository studentUserRepository) {
+    public DirectionService(DirectionRepository directionRepository,
+                            StudentUserRepository studentUserRepository,
+                            NotificationRepository notificationRepository) {
         this.directionRepository = directionRepository;
         this.studentUserRepository = studentUserRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     public DirectionResponse createDirection(DirectionCreateRequest directionCreateRequest) {
@@ -84,10 +91,15 @@ public class DirectionService {
         if (optionalDirection.isPresent() && optionalStudent.isPresent()) {
             Direction direction = optionalDirection.get();
             Student student = optionalStudent.get();
-
+            Direction oldDirection = student.getDirection();
             student.setDirection(direction);
             studentUserRepository.save(student);
-
+            Notification notification = Notification.builder()
+                    .student(student)
+                    .date(LocalDateTime.now())
+                    .message("Ваша направление был изменен с " + oldDirection.getName() + " на " + direction.getName())
+                    .build();
+            notificationRepository.save(notification);
             direction.getStudents().add(student);
             LOGGER.info("Студент с id: {} успешно назначен к Direction с id: {}", studentId, directionId);
             return directionRepository.save(direction);

@@ -2,11 +2,13 @@ package com.kaitech.student_crm.services;
 
 import com.kaitech.student_crm.exceptions.NotFoundException;
 import com.kaitech.student_crm.exceptions.ProjectAlreadyCompletedException;
+import com.kaitech.student_crm.models.Notification;
 import com.kaitech.student_crm.models.Project;
 import com.kaitech.student_crm.models.Student;
 import com.kaitech.student_crm.payload.request.ProjectRequest;
 import com.kaitech.student_crm.payload.response.ProjectResponse;
 import com.kaitech.student_crm.payload.response.StudentResponse;
+import com.kaitech.student_crm.repositories.NotificationRepository;
 import com.kaitech.student_crm.repositories.ProjectRepository;
 import com.kaitech.student_crm.repositories.StudentUserRepository;
 import org.modelmapper.ModelMapper;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -27,12 +30,14 @@ public class ProjectService {
     private final StudentUserRepository studentUserRepository;
     private final ModelMapper modelMapper;
     private final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);
+    private final NotificationRepository notificationRepository;
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository, StudentUserRepository studentUserRepository, ModelMapper modelMapper) {
+    public ProjectService(ProjectRepository projectRepository, StudentUserRepository studentUserRepository, ModelMapper modelMapper, NotificationRepository notificationRepository) {
         this.projectRepository = projectRepository;
         this.studentUserRepository = studentUserRepository;
         this.modelMapper = modelMapper;
+        this.notificationRepository = notificationRepository;
     }
 
     public ProjectResponse saveAllStudentInProject(Long projectId, List<Long> studentIds) {
@@ -49,7 +54,14 @@ public class ProjectService {
         List<Student> students = studentUserRepository.findAllById(studentIds);
         project.getStudents().addAll(students);
         projectRepository.save(project);
-
+        for (Student student : students) {
+            Notification notification = Notification.builder()
+                    .student(student)
+                    .date(LocalDateTime.now())
+                    .message("Вас добавили в проект " + project.getTitle())
+                    .build();
+            notificationRepository.save(notification);
+        }
         LOGGER.info("Студенты успешно добавлены в проект с id: {}", projectId);
         return findByIdResponse(project.getId());
     }
@@ -204,9 +216,15 @@ public class ProjectService {
 
         Student student = studentUserRepository.findById(studentId)
                 .orElseThrow(() -> new NotFoundException("Студент не найден"));
-
         project.getStudents().add(student);
         projectRepository.save(project);
+
+        Notification notification = Notification.builder()
+                .student(student)
+                .date(LocalDateTime.now())
+                .message("Вас добавили в проект " + project.getTitle())
+                .build();
+        notificationRepository.save(notification);
 
         ProjectResponse projectResponse = projectRepository.findByIdResponse(projectId);
         List<StudentResponse> students = studentUserRepository.findAllByProjectIdResponse(projectId);

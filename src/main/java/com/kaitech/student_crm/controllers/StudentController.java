@@ -198,7 +198,7 @@ public class StudentController {
     @PostMapping("/sendCode")
     @Operation(summary = "Отправка кода подтверждения для изменения на новый email")
     public MessageResponse sendVerificationCode(@RequestParam String newEmail) {
-        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return studentUserService.sendVerificationCode(email, newEmail);
     }
 

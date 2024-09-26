@@ -6,10 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import org.springframework.security.access.AccessDeniedException;
 
@@ -28,5 +25,30 @@ public class NotificationController {
         if (SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser"))
             throw new AccessDeniedException("Login to your account");
         return notificationService.findAllByStudentId(studentId, SecurityContextHolder.getContext().getAuthentication().getName());
+    }
+
+    @Operation(summary = "Получение своих уведомлений ")
+    @GetMapping("my/notification")
+    public List<NotificationResponse> myNotification() throws AccessDeniedException {
+        if (SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser"))
+            throw new AccessDeniedException("Login to your account");
+        return notificationService.myNotification(SecurityContextHolder.getContext().getAuthentication().getName());
+    }
+
+    @Operation(summary = "Получение своих не прочитанных уведомлений")
+    @GetMapping("my/new/notification")
+    public List<NotificationResponse> findNewNotification() throws AccessDeniedException {
+        if (SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser"))
+            throw new AccessDeniedException("Login to your account");
+        return notificationService.findAllNewNotification(SecurityContextHolder.getContext().getAuthentication().getName());
+    }
+
+    @Operation(summary = "Удаление уведомлений")
+    @DeleteMapping("delete/by/{ids}")
+    public String deleteByIdsNotification(@PathVariable List<Long> ids) throws AccessDeniedException {
+        if (SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser"))
+            throw new AccessDeniedException("Login to your account");
+        notificationService.deleteByIdsNotification(ids, SecurityContextHolder.getContext().getAuthentication().getName());
+        return "Успешно удалено";
     }
 }
