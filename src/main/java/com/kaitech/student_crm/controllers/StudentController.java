@@ -130,7 +130,7 @@ public class StudentController {
         return studentUserService.deleteImage(SecurityContextHolder.getContext().getAuthentication().getName(), studentId);
     }
 
-    @PostMapping("registered/for/student/")
+    @PostMapping("registered/for/student")
     @Operation(summary = "The student registers using this link")
     public StudentDTO registerStudent(
             @RequestBody StudentRegisterRequest request) {
