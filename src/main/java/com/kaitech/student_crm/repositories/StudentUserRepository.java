@@ -107,7 +107,8 @@ public interface StudentUserRepository extends JpaRepository<Student, Long> {
             s.lastName,
             s.firstName,
             s.direction.name,
-            s.status
+            s.status,
+            s.point
             ) from Student s
             order by s.id
             """)

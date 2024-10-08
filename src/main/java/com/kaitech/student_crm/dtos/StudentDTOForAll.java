@@ -15,5 +15,15 @@ public class StudentDTOForAll {
     private String firstName;
     private String direction;
     private Status status;
+    private Integer point;
 
+    public StudentDTOForAll(Long id, String image, String lastName, String firstName,
+                            String direction, Status status) {
+        this.id = id;
+        this.image = image;
+        this.lastName = lastName;
+        this.firstName = firstName;
+        this.direction = direction;
+        this.status = status;
+    }
 }
