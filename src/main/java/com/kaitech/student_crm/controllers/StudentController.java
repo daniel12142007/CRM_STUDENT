@@ -13,6 +13,7 @@ import com.kaitech.student_crm.payload.request.StudentRequest;
 import com.kaitech.student_crm.payload.request.UpdateStudentRequest;
 import com.kaitech.student_crm.payload.response.MessageResponse;
 import com.kaitech.student_crm.payload.response.StudentResponse;
+import com.kaitech.student_crm.services.AuthUserDetails;
 import com.kaitech.student_crm.services.StudentUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
@@ -212,19 +213,23 @@ public class StudentController {
     @GetMapping("/profile")
     @Operation(summary = "Просмотр профиля  студента ")
     public ResponseEntity<StudentResponse> getStudentProfile() {
-        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        AuthUserDetails userDetails = (AuthUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        String email = userDetails.getUsername();
 
         Optional<StudentResponse> studentResponse = studentUserService.getStudentProfileByEmail(email);
 
-        return studentResponse.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-
+        return studentResponse.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
 
     @PutMapping("/update-profile")
     @Operation(summary = "Редактирование профиля")
     public ResponseEntity<String> updateProfileByToken(@RequestBody UpdateStudentRequest studentRequest) {
-        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        AuthUserDetails userDetails = (AuthUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        String email = userDetails.getUsername();
 
         studentUserService.updateStudentDetails(email, studentRequest.firstName(), studentRequest.lastName(), studentRequest.phoneNumber());
 
