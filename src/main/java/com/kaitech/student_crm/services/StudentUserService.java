@@ -135,9 +135,10 @@ public class StudentUserService {
 
         Optional<Student> studentOptional = studentUserRepository.findById(studentId);
 
+        String email;
         if (studentOptional.isPresent()) {
             Student student = studentOptional.get();
-
+            email = student.getEmail();
             if (!student.getEmail().equals(request.email())) {
                 boolean emailExists = studentUserRepository.existsByEmail(request.email());
                 if (emailExists) {
@@ -163,7 +164,7 @@ public class StudentUserService {
                 student.setDirection(direction);
             }
             User user = userRepository.findUserByEmail(student.getEmail()).orElseThrow(
-                    () -> new NotFoundException("Not Found user email: " + student.getEmail())
+                    () -> new NotFoundException("Not Found user email: " + email)
             );
             user.setEmail(request.email());
             user.setFirstname(request.firstName());
@@ -230,6 +231,7 @@ public class StudentUserService {
     public void deleteStudent(Long studentId) {
         LOGGER.info("Удаление студента с ID: {}", studentId);
         Student student = getStudentById(studentId);
+        User user = student.getUser();
         Set<Project> projects = student.getProjects();
         List<Project> updatedProjects = new ArrayList<>();
         projects.forEach(
@@ -240,6 +242,7 @@ public class StudentUserService {
         );
         projectRepository.saveAll(updatedProjects);
         studentUserRepository.delete(student);
+        userRepository.delete(user);
         LOGGER.info("Студент с ID: {} успешно удалён", studentId);
     }
 

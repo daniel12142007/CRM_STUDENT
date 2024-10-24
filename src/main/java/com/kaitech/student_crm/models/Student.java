@@ -38,8 +38,8 @@ public class Student {
     @ManyToOne
     @JoinColumn(name = "level_id")
     private Level level;
-    @OneToMany(mappedBy = "student")
+    @OneToMany(mappedBy = "student", cascade = CascadeType.REMOVE)
     private List<Archive> archives = new ArrayList<>();
-    @OneToMany(mappedBy = "student")
+    @OneToMany(mappedBy = "student", cascade = CascadeType.REMOVE)
     private List<Notification> notifications;
 }
