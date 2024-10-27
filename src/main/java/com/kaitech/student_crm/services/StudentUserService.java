@@ -242,7 +242,8 @@ public class StudentUserService {
         );
         projectRepository.saveAll(updatedProjects);
         studentUserRepository.delete(student);
-        userRepository.delete(user);
+        if (user != null)
+            userRepository.delete(user);
         LOGGER.info("Студент с ID: {} успешно удалён", studentId);
     }
 
