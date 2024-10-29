@@ -176,7 +176,7 @@ public class StudentUserService {
             student.setPoint(request.point());
             studentUserRepository.save(student);
             userRepository.save(user);
-
+            addPointForStudent(studentId, request.point());
             LOGGER.info("Студент с ID: {} успешно обновлён", studentId);
             return findByIdStudentInfo(studentId);
         } else {
